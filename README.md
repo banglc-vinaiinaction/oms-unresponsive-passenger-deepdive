@@ -73,7 +73,57 @@ Instead of uninterpretable black-box models, the perception module derives inter
 
 ---
 
-## 3. 4-Tier Escalation Hierarchy
+## 3. Sensor & System Fallback Behaviors (SOTIF / ISO 21448)
+
+> [!NOTE]
+> **Conceptual SOTIF Safety Envelope**: The fallback state machines and degraded operational modes documented below are **software simulations** modeled after ISO 21448 (Safety of the Intended Functionality). They demonstrate deterministic algorithmic fallbacks without deployment on certified automotive hardware, safety microcontrollers (e.g. Infineon AURIX), or physical vehicle wiring harness redundancy.
+
+In an L4 driverless cabin, single-point sensor occlusions or communication blackouts must not blind the system. The multi-modal OMS architecture implements 3 graceful fallback tiers:
+
+```
+                          +------------------------------------------+
+                          |   Full Dual-Fusion Perception Mode       |
+                          |   (Facial Mesh EAR + Halpe-26 Trunk θ)   |
+                          +---------------------+--------------------+
+                                                |
+               +--------------------------------+--------------------------------+
+               | Partial Occlusion                                               | Sensor / Link Loss
+               ▼                                                                 ▼
++------------------------------+  +------------------------------+  +------------------------------+
+|   Unimodal Pose Fallback     |  |   Unimodal Face Fallback     |  | Safe-State Autonomous        |
+|   (Face Occluded / Masked)   |  |   (Body Occluded / Blanket)  |  | Failsafe (Sensor/Net Loss)   |
+|                              |  |                              |  |                              |
+| - Trigger: Face confidence=0 |  | - Trigger: Skeleton conf=0   |  | - Trigger: Dual cam loss OR  |
+| - Metric: Trunk θ > 40°      |  | - Metric: EAR < 0.15 AND     |  |   Tele-op heartbeat timeout  |
+| - Escalation: Unresponsive   |  |   Head pitch < -20°          |  | - Actuation: Safe pull-over, |
+|   timer triggers Level 1-4   |  | - Escalation: Level 1-4      |  |   door unlock, local SOS     |
++------------------------------+  +------------------------------+  +------------------------------+
+```
+
+### 3.1 Unimodal Pose Fallback (Face Occluded)
+* **Operational Trigger**: Passenger turns away from optical sensors, wears opaque headwear/hoodies, uses surgical/respiratory face masks, or experiences extreme backlighting where facial mesh confidence drops below threshold ($< 50$ valid landmarks, `is_face_occluded = True`).
+* **Algorithmic Fallback**: The decision engine decouples from facial Eye Aspect Ratio (EAR) requirements and evaluates upper-body skeletal kinematics via Halpe-26 joint estimation.
+* **Deterministic Rule**:
+  $$\text{If } \theta_{\text{trunk}} > 40^\circ \text{ and } \Delta \text{stillness} \ge t_{\text{threshold}} \implies \text{State} = \text{MEDICAL\_INCAPACITATION}$$
+  Severe trunk collapse alone acts as sufficient geometric evidence of unconsciousness. Auxiliary checks (e.g., elevated feet checking `y_foot < y_hip - 30px` for airbag protection, violent wrist velocities for harassment) continue uninterrupted.
+
+### 3.2 Unimodal Face Fallback (Skeleton Occluded)
+* **Operational Trigger**: Passenger torso and limbs are obscured by heavy winter jackets, travel blankets, packages, or physical seat dividers, causing skeletal joint tracking to fail ($< 20$ valid joints, `is_skeleton_occluded = True`).
+* **Algorithmic Fallback**: The decision engine drops torso angle projections and switches to high-confidence facial landmark tracking.
+* **Deterministic Rule**:
+  $$\text{If } \text{EAR} < 0.15 \text{ and } \text{pitch} < -20^\circ \implies \text{State} = \text{MEDICAL\_INCAPACITATION}$$
+  Sustained eye closure combined with head droop pitch (chin slumped forward/downward) provides mathematical evidence of incapacitation despite complete torso invisibility.
+
+### 3.3 Safe-State Autonomous Fallback (Sensor Blackout or Tele-op Link Loss)
+* **Operational Trigger**: Complete loss of interior camera telemetry (hardware fault, lens tamper/defacement) OR total loss of cellular/V2X tele-operation connectivity (underground tunnel, network blackout, heartbeat ping timeout $> 3.0\text{s}$).
+* **Algorithmic Fallback**: The vehicle cannot verify passenger welfare through vision nor defer to remote fleet human operators. Under ISO 21448 safe-state rules, the autonomous stack executes deterministic local failsafe actions:
+  1. **Minimum Risk Maneuver (MRM / Safe Pull-Over)**: Autonomous motion planner brings the robotaxi to a controlled stop at the road shoulder or curb with hazard warning flashers active.
+  2. **Emergency Remote Door Unlock**: Central locking controller overrides door latches from locked to unlocked (`0x00`), allowing outside pedestrians and emergency personnel unimpeded cabin access.
+  3. **Local Acoustic & Visual SOS Beacon**: Exterior glass display renders distress warnings (*"CẦN TRỢ GIÚP Y TẾ"*), and external loudspeakers broadcast an audible emergency beacon locally without waiting for cloud dispatch confirmation.
+
+---
+
+## 4. 4-Tier Escalation Hierarchy
 
 The conceptual intervention controller escalates systematically across 4 distinct domains:
 
@@ -86,7 +136,7 @@ The conceptual intervention controller escalates systematically across 4 distinc
 
 ---
 
-## 4. Simulated Vehicle Message Protocol
+## 5. Simulated Vehicle Message Protocol
 
 The communication layer models standard automotive framing principles via software abstractions:
 
@@ -95,7 +145,7 @@ The communication layer models standard automotive framing principles via softwa
 
 ---
 
-## 5. Verification & Execution
+## 6. Verification & Execution
 
 ### 1. Interactive Web Dashboard
 Open `demo.html` in any modern web browser to view the real-time 2D cabin canvas, 50-point face landmark mesh, metric gauges, and simulated CAN bus telemetry stream.

@@ -145,9 +145,52 @@
     </div>
   </section>
 
-  <!-- SLIDE 6: Escaltion Matrix -->
+  <!-- SLIDE 6: Sensor & System Fallback -->
   <section>
-    <h2>5 · Chuỗi Leo Thang 4 Cấp Độ (Escalation)</h2>
+    <h2>5 · Chiến Lược Dự Phòng (Sensor & System Fallback)</h2>
+    <p class="tagline">Xe Robotaxi không người lái xử lý thế nào khi cảm biến bị che khuất hoặc lỗi mạng?</p>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; align-items: stretch;">
+      <div class="card" style="border-top: 4px solid var(--accent3); padding: 15px;">
+        <div class="card-title" style="color:var(--accent3); font-size:0.95em;"><i class="fa fa-mask-face"></i> Khách Che Mặt</div>
+        <div style="font-size:0.7em; color:#94a3b8; margin-bottom:8px;"><em>Tình huống:</em> Đeo khẩu trang, trùm chăn/áo ấm hoặc trở mình úp mặt.</div>
+        <div style="font-size:0.74em; color:#cbd5e1; line-height:1.4;">
+          <strong style="color:var(--accent3);">Pose-only Fallback:</strong> Tự động chuyển trọng số suy luận sang khung xương <strong>Halpe-26</strong>.<br><br>
+          &bull; <strong>Chỉ số:</strong> Đo góc gập cột sống <strong>&theta; &gt; 40&deg;</strong> so với phương đứng.<br>
+          &bull; <strong>Logic:</strong> Kích hoạt bộ đếm thời gian bất động (Temporal Logic).
+        </div>
+      </div>
+
+      <div class="card" style="border-top: 4px solid var(--accent); padding: 15px;">
+        <div class="card-title" style="color:var(--accent); font-size:0.95em;"><i class="fa fa-user-slash"></i> Khách Khuất Thân</div>
+        <div style="font-size:0.7em; color:#94a3b8; margin-bottom:8px;"><em>Tình huống:</em> Góc chết camera, túi xách/vật cản hoặc áo khoác phao dày.</div>
+        <div style="font-size:0.74em; color:#cbd5e1; line-height:1.4;">
+          <strong style="color:var(--accent);">Face-only Fallback:</strong> Tự động chuyển trọng số sang nhận diện khuôn mặt.<br><br>
+          &bull; <strong>Chỉ số:</strong> Đo tỷ lệ nhắm mắt <strong>EAR &lt; 0.2</strong> liên tục.<br>
+          &bull; <strong>Logic:</strong> Phân tích góc gục đầu (<strong>Head Pitch</strong>) để xác định trạng thái gục ngã mất ý thức.
+        </div>
+      </div>
+
+      <div class="card" style="border-top: 4px solid var(--danger); padding: 15px;">
+        <div class="card-title" style="color:var(--danger); font-size:0.95em;"><i class="fa fa-triangle-exclamation"></i> Mất Sensor / Mạng</div>
+        <div style="font-size:0.7em; color:#94a3b8; margin-bottom:8px;"><em>Tình huống:</em> Camera bị che khuất hoàn toàn hoặc mất kết nối Tele-op.</div>
+        <div style="font-size:0.74em; color:#cbd5e1; line-height:1.4;">
+          <strong style="color:var(--danger);">Minimum Risk Maneuver (MRM):</strong> Kích hoạt Chế độ An toàn Cực tiểu cấp xe tự hành:<br><br>
+          &bull; <strong>Hành vi xe:</strong> Tự động điều hướng tấp lề an toàn.<br>
+          &bull; <strong>Cứu nạn:</strong> Tự động mở chốt khóa cửa khẩn cấp.<br>
+          &bull; <strong>Cảnh báo:</strong> Bật đèn khẩn cấp &amp; phát còi SOS ngoài xe.
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 15px; font-size: 0.65em; color: #94a3b8; text-align: left; background: rgba(255,255,255,0.05); padding: 10px; border-left: 3px solid var(--accent3); border-radius: 4px;">
+      <i class="fa fa-shield-halved"></i> <strong>Nguyên tắc Fail-Operational:</strong> Hệ thống duy trì suy luận tối thiểu (Graceful Degradation) khi một phần cảm biến gặp sự cố; chuyển quyền điều khiển sang cơ chế MRM độc lập khi toàn bộ cabin mất quan sát.
+    </div>
+  </section>
+
+  <!-- SLIDE 7: Escalation Matrix -->
+  <section>
+    <h2>6 · Chuỗi Leo Thang 4 Cấp Độ (Escalation)</h2>
     <p class="tagline">Xe tự hành không đứng im chờ chết, nó tự tìm cách cứu người</p>
 
     <div class="two-col">

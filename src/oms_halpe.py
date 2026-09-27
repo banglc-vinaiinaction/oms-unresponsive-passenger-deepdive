@@ -179,13 +179,24 @@ class OMSDecisionEngine:
     the appropriate level in the 4-tier intervention hierarchy.
     """
 
+    def __init__(self, teleop_link_lost: bool = False, vehicle_in_motion: bool = False):
+        self.default_teleop_link_lost = teleop_link_lost
+        self.default_vehicle_in_motion = vehicle_in_motion
+
     def evaluate_cabin(
         self,
         passengers: List[PassengerOMS],
         doors_open: bool = False,
         trip_completed: bool = False,
-        has_camera_video_loss: bool = False
+        has_camera_video_loss: bool = False,
+        teleop_link_lost: Optional[bool] = None,
+        vehicle_in_motion: Optional[bool] = None
     ) -> Dict[str, Any]:
+        if teleop_link_lost is None:
+            teleop_link_lost = self.default_teleop_link_lost
+        if vehicle_in_motion is None:
+            vehicle_in_motion = self.default_vehicle_in_motion
+
         result = {
             "intervention_level": InterventionLevelOMS.LEVEL_0_NOMINAL,
             "anomalies": [],
@@ -194,15 +205,36 @@ class OMSDecisionEngine:
             "passerby_actions": [],
             "fleet_ops_actions": [],
             "law_enforcement_actions": [],
+            "failsafe_fallback": None,
+            "mrm_takeover": False,
+            "refuse_departure": False,
             "passenger_count": len(passengers)
         }
 
-        # Check 1: Camera tampering
-        if has_camera_video_loss and len(passengers) > 0:
+        # Check 1: Camera tampering or video loss
+        if has_camera_video_loss:
             result["anomalies"].append(AnomalyType.CAMERA_OCCLUSION_TAMPER)
-            result["intervention_level"] = max(result["intervention_level"], InterventionLevelOMS.LEVEL_1_CABIN, key=lambda x: x.value)
-            result["hmi_actions"].append("Cảnh báo âm thanh: Ống kính camera bị che khuất! Xe từ chối lăn bánh.")
-            result["fleet_ops_actions"].append("Thông báo đội xe: Cảnh báo can thiệp phá hoại cảm biến.")
+            result["intervention_level"] = max(
+                result["intervention_level"],
+                InterventionLevelOMS.LEVEL_3_FLEET_OPS,
+                key=lambda x: x.value
+            )
+            if vehicle_in_motion:
+                result["mrm_takeover"] = True
+                result["hmi_actions"].append(
+                    "Cảnh báo âm thanh Cấp 1: Phát hiện ống kính camera bị che khuất / mất video camera khi đang di chuyển! Thực hiện Minimum Risk Maneuver (MRM) safe pull-over."
+                )
+                result["passerby_actions"].append(
+                    "Bật đèn cảnh báo khẩn cấp Hazard khi xe thực hiện Minimum Risk Maneuver (MRM) safe pull-over."
+                )
+            else:
+                result["refuse_departure"] = True
+                result["hmi_actions"].append(
+                    "Cảnh báo âm thanh Cấp 1: Ống kính camera bị che khuất hoặc mất tín hiệu video! Xe từ chối lăn bánh (Refuses to depart)."
+                )
+            result["fleet_ops_actions"].append(
+                "Leo thang Tele-operator Cấp 3: Cảnh báo phá hoại cảm biến hoặc mất video camera (Tele-operator escalation)."
+            )
 
         # Check 2: Multi-person seat distribution & Lap-sitting
         seat_map = {}
@@ -238,16 +270,36 @@ class OMSDecisionEngine:
                 elif trunk_deg > 40.0:
                     result["hmi_actions"].append(f"Màn hình {p.seat.value}: Túi khí điều chỉnh lực nổ giảm do tư thế nằm ngả lưng.")
 
-            # Squatter / Unresponsive passenger at dropoff
-            if trip_completed and doors_open and p.stillness_duration_s >= 60.0:
-                result["anomalies"].append(AnomalyType.SQUATTER_UNRESPONSIVE)
+            # Squatter / Unresponsive passenger
+            is_squatter = (trip_completed and doors_open and p.stillness_duration_s >= 60.0)
+            is_unresponsive = (p.stillness_duration_s >= 180.0)
+            if is_squatter or is_unresponsive:
+                if AnomalyType.SQUATTER_UNRESPONSIVE not in result["anomalies"]:
+                    result["anomalies"].append(AnomalyType.SQUATTER_UNRESPONSIVE)
                 if p.stillness_duration_s >= 180.0:
-                    # After 3 minutes -> Escalate to Level 4
+                    # After 3 minutes -> Escalate to Level 4 Emergency
                     result["intervention_level"] = InterventionLevelOMS.LEVEL_4_EMERGENCY
                     result["hmi_actions"].append("Đèn trần bật sáng cực đại 100% + Còi báo thức âm lượng lớn.")
                     result["passerby_actions"].append("Màn hình kính ngoài hiện: 'CẦN TRỢ GIÚP Y TẾ' + Loa ngoài phát thanh nhờ giúp đỡ.")
-                    result["fleet_ops_actions"].append("Tele-operator mở đàm thoại 2 chiều + Điều xe cơ động Field Support Van.")
-                    result["law_enforcement_actions"].append("Tự động kích hoạt eCall 115 truyền dữ liệu nhịp thở + Mở khóa cửa từ xa.")
+
+                    if teleop_link_lost:
+                        fallback_msg = (
+                            "Autonomous Safe-Stop & Door Unlock Fallback: "
+                            "Xe tự tấp lề an toàn, mở khóa tất cả cửa xe từ chốt cơ điện tử, "
+                            "kích hoạt còi báo động SOS và đèn hazard ngoài xe."
+                        )
+                        result["failsafe_fallback"] = fallback_msg
+                        result["mrm_takeover"] = True
+                        result["fleet_ops_actions"].append(
+                            "Mất kết nối mạng Tele-operations! Kích hoạt quy trình tự hành an toàn cục bộ."
+                        )
+                        if fallback_msg not in result["law_enforcement_actions"]:
+                            result["law_enforcement_actions"].append(fallback_msg)
+                        if "Kích hoạt còi báo động SOS ngoài xe và đèn hazard." not in result["passerby_actions"]:
+                            result["passerby_actions"].append("Kích hoạt còi báo động SOS ngoài xe và đèn hazard.")
+                    else:
+                        result["fleet_ops_actions"].append("Tele-operator mở đàm thoại 2 chiều + Điều xe cơ động Field Support Van.")
+                        result["law_enforcement_actions"].append("Tự động kích hoạt eCall 115 truyền dữ liệu nhịp thở + Mở khóa cửa từ xa.")
                 elif p.stillness_duration_s >= 150.0:
                     result["intervention_level"] = max(result["intervention_level"], InterventionLevelOMS.LEVEL_3_FLEET_OPS, key=lambda x: x.value)
                     result["hmi_actions"].append("Đèn trần bật sáng + Loa báo thức: 'Xe đã đến nơi, xin quý khách rời xe'.")
@@ -270,7 +322,19 @@ class OMSDecisionEngine:
                         result["intervention_level"] = InterventionLevelOMS.LEVEL_4_EMERGENCY
                         result["hmi_actions"].append("Hú còi báo động nội thất, đèn trần nháy đỏ rực, xe tự động tấp lề sáng đèn.")
                         result["passerby_actions"].append("Đèn Hazard chớp liên tục, loa ngoài phát: 'SỰ CỐ KHẨN CẤP TRONG XE!'.")
-                        result["fleet_ops_actions"].append("Tele-operator quát răn đe qua loa: 'Hình ảnh bạo lực đang truyền trực tiếp về an ninh!'.")
-                        result["law_enforcement_actions"].append("Tự động quay số Cảnh sát 113, truyền GPS và clip độ phân giải cao.")
+                        if teleop_link_lost:
+                            fallback_msg = (
+                                "Autonomous Safe-Stop & Door Unlock Fallback: "
+                                "Xe tự tấp lề an toàn, mở khóa tất cả cửa xe từ chốt cơ điện tử, "
+                                "kích hoạt còi báo động SOS và đèn hazard ngoài xe."
+                            )
+                            result["failsafe_fallback"] = fallback_msg
+                            result["mrm_takeover"] = True
+                            result["fleet_ops_actions"].append("Mất kết nối Tele-operator! Xe tự động ghi lại clip và truyền phát lại ngay khi có sóng.")
+                            if fallback_msg not in result["law_enforcement_actions"]:
+                                result["law_enforcement_actions"].append(fallback_msg)
+                        else:
+                            result["fleet_ops_actions"].append("Tele-operator quát răn đe qua loa: 'Hình ảnh bạo lực đang truyền trực tiếp về an ninh!'.")
+                            result["law_enforcement_actions"].append("Tự động quay số Cảnh sát 113, truyền GPS và clip độ phân giải cao.")
 
         return result

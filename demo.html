@@ -16,7 +16,7 @@
   
   header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
   h1 { font-size: 1.5rem; color: var(--danger); display: flex; align-items: center; gap: 10px; }
-  .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+  .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
   .badge-oms { background: rgba(56,189,248,0.2); color: var(--blue); border: 1px solid var(--blue); }
 
   .layout { display: grid; grid-template-columns: 1fr 380px; gap: 20px; max-width: 1200px; margin: 0 auto; }
@@ -24,17 +24,58 @@
   .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 20px; }
   .card-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--blue); display: flex; align-items: center; gap: 8px; }
 
+  /* Fallback mode buttons */
+  .fallback-btn {
+    background: #0f172a;
+    border: 1px solid var(--border);
+    color: var(--sub);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+    text-align: left;
+  }
+  .fallback-btn:hover {
+    background: #1e293b;
+    color: var(--text);
+    border-color: var(--blue);
+  }
+  .fallback-btn.active {
+    background: rgba(56,189,248,0.18);
+    color: var(--blue);
+    border-color: var(--blue);
+    box-shadow: 0 0 10px rgba(56,189,248,0.25);
+  }
+  .fallback-btn.active.warn {
+    background: rgba(245,158,11,0.18);
+    color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(245,158,11,0.25);
+  }
+  .fallback-btn.active.danger {
+    background: rgba(239,68,68,0.22);
+    color: var(--danger);
+    border-color: var(--danger);
+    box-shadow: 0 0 12px rgba(239,68,68,0.3);
+  }
+
   /* 4-tier intervention status */
   .level-box { padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border); transition: all 0.3s; }
   .level-1 { background: rgba(56,189,248,0.15); border-color: var(--blue); }
   .level-2 { background: rgba(16,185,129,0.15); border-color: var(--green); }
   .level-3 { background: rgba(245,158,11,0.15); border-color: var(--accent); }
   .level-4 { background: rgba(239,68,68,0.25); border-color: var(--danger); box-shadow: 0 0 15px rgba(239,68,68,0.3); }
+  .level-offline { background: rgba(239,68,68,0.15); border-color: var(--danger); border-style: dashed; }
 
   .level-title { font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
   .level-desc { font-size: 0.78rem; color: var(--text); margin-top: 4px; }
 
-  .hmi-screen { background: #000; border: 2px solid #ef4444; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 0.85rem; color: #ef4444; text-align: center; font-weight: bold; }
+  .hmi-screen { background: #000; border: 2px solid #ef4444; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 0.85rem; color: #ef4444; text-align: center; font-weight: bold; transition: all 0.3s; }
   .can-terminal { background: #050811; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; font-family: monospace; font-size: 0.75rem; color: #10b981; }
 </style>
 </head>
@@ -42,22 +83,54 @@
 
 <header style="max-width: 1200px; margin: 0 auto 20px;">
   <h1><i class="fa fa-truck-medical"></i> OMS Deep Dive: Xử Lý Khách Bất Tỉnh L4</h1>
-  <div>
+  <div style="display:flex; align-items:center; gap:12px;">
+    <span id="headerFallbackBadge" class="badge" style="background: rgba(16,185,129,0.2); color: var(--green); border: 1px solid var(--green);">
+      <i class="fa fa-shield-halved"></i> Sensors: Dual-Fusion Active
+    </span>
     <span class="badge badge-oms">RTMPose Fusion</span>
-    <a href="slides.html" style="color:var(--accent); text-decoration:none; margin-left:15px; font-weight:700;"><i class="fa fa-slideshare"></i> Xem Slides</a>
+    <a href="slides.html" style="color:var(--accent); text-decoration:none; font-weight:700;"><i class="fa fa-slideshare"></i> Xem Slides</a>
   </div>
 </header>
 
 <div class="layout">
   <!-- Left column: Visualizer & Math -->
   <div>
+    <!-- Sensor & System Fallback Selector (SOTIF / ISO 21448) -->
+    <div class="card" style="margin-bottom:18px;">
+      <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
+        <span><i class="fa fa-shield-halved"></i> Chế Độ Dự Phòng (Sensor Fallback — SOTIF / ISO 21448)</span>
+        <span id="fallbackStatusTag" style="font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:4px; background:rgba(16,185,129,0.2); color:var(--green); border:1px solid var(--green);">
+          Sensors: Dual-Fusion Active
+        </span>
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:8px; margin-bottom:12px;">
+        <button class="fallback-btn active" id="btnDual" onclick="setFallbackMode('dual')">
+          <i class="fa fa-circle-check"></i> Sensors: Dual-Fusion Active
+        </button>
+        <button class="fallback-btn" id="btnFaceOcc" onclick="setFallbackMode('face_occ')">
+          <i class="fa fa-mask-face"></i> Face Occluded: Pose-Active
+        </button>
+        <button class="fallback-btn" id="btnSkelOcc" onclick="setFallbackMode('skel_occ')">
+          <i class="fa fa-person-shelter"></i> Skeleton Occluded: Face-Active
+        </button>
+        <button class="fallback-btn" id="btnNetLoss" onclick="setFallbackMode('net_loss')">
+          <i class="fa fa-triangle-exclamation"></i> Network Loss: Autonomous Failsafe
+        </button>
+      </div>
+      <div id="fallbackNotice" style="font-size:0.78rem; padding:10px 12px; border-radius:8px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#cbd5e1; line-height:1.4;">
+        <strong style="color:var(--green);"><i class="fa fa-circle-check"></i> Dual-Fusion Hoạt Động Định Mức:</strong> Cả 2 luồng Face (Mesh 50 điểm) và Pose (Halpe-26) đều khả dụng. Quyết định kết hợp đồng thời độ mở mắt EAR &lt; 0.20 và góc thân nghiêng &gt; 40&deg;.
+      </div>
+    </div>
+
+    <!-- Live Feeds Card -->
     <div class="card" style="padding:0; overflow:hidden;">
-      <div class="card-title" style="padding:16px; margin-bottom:0; border-bottom:1px solid var(--border);">
-        <i class="fa fa-users-viewfinder"></i> Nhận Diện Face + Pose (Live Feed)
+      <div class="card-title" style="padding:16px; margin-bottom:0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+        <span><i class="fa fa-users-viewfinder"></i> Nhận Diện Face + Pose (Live Feed)</span>
+        <span id="canvasFeedStatus" style="font-size:0.72rem; color:var(--green); font-weight:600;"><i class="fa fa-satellite-dish"></i> 2/2 Sensors Operational</span>
       </div>
       <div style="display:flex;">
         <!-- Body -->
-        <div style="flex:1; border-right:1px solid var(--border); padding:16px;">
+        <div style="flex:1; border-right:1px solid var(--border); padding:16px; position:relative;">
            <canvas id="cabinCanvas" width="480" height="360" style="width:100%; height:auto; background:#0c121e; border-radius:10px; border:1px solid #1e293b;"></canvas>
         </div>
         <!-- Face & Gauges -->
@@ -66,36 +139,61 @@
           <div style="margin-top:20px; font-size:0.75rem; color:var(--sub);">
             <!-- Math Metrics -->
             <div style="margin-bottom:12px;">
-              <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Độ mở mắt (EAR)</span><strong style="color:var(--danger)">0.05</strong></div>
-              <div style="width:100%; height:6px; background:#1e293b; border-radius:3px;"><div style="width:15%; height:100%; background:var(--danger);"></div></div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span>Độ mở mắt (EAR)</span>
+                <strong id="gaugeEarVal" style="color:var(--danger)">0.05</strong>
+              </div>
+              <div style="width:100%; height:6px; background:#1e293b; border-radius:3px;">
+                <div id="gaugeEarBar" style="width:15%; height:100%; background:var(--danger); transition: all 0.3s;"></div>
+              </div>
             </div>
             <div style="margin-bottom:12px;">
-              <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Góc thân (Trunk θ)</span><strong style="color:var(--danger)">41.9°</strong></div>
-              <div style="width:100%; height:6px; background:#1e293b; border-radius:3px;"><div style="width:90%; height:100%; background:var(--danger);"></div></div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span>Góc thân (Trunk θ)</span>
+                <strong id="gaugeTrunkVal" style="color:var(--danger)">41.9°</strong>
+              </div>
+              <div style="width:100%; height:6px; background:#1e293b; border-radius:3px;">
+                <div id="gaugeTrunkBar" style="width:90%; height:100%; background:var(--danger); transition: all 0.3s;"></div>
+              </div>
+            </div>
+            <div id="gaugePitchRow" style="margin-bottom:12px; display:none;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span>Góc gục đầu (Pitch)</span>
+                <strong id="gaugePitchVal" style="color:var(--accent)">-28.5°</strong>
+              </div>
+              <div style="width:100%; height:6px; background:#1e293b; border-radius:3px;">
+                <div id="gaugePitchBar" style="width:75%; height:100%; background:var(--accent); transition: all 0.3s;"></div>
+              </div>
             </div>
             <div style="margin-bottom:12px;">
-              <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>T/g bất động</span><strong style="color:var(--danger)">220 giây</strong></div>
-              <div style="width:100%; height:6px; background:#1e293b; border-radius:3px;"><div style="width:100%; height:100%; background:var(--danger);"></div></div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span>T/g bất động</span>
+                <strong id="gaugeStillVal" style="color:var(--danger)">220 giây</strong>
+              </div>
+              <div style="width:100%; height:6px; background:#1e293b; border-radius:3px;">
+                <div style="width:100%; height:100%; background:var(--danger);"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Math & Decision Evidence Card -->
     <div class="card">
-      <div class="card-title"><i class="fa fa-calculator"></i> Bằng Chứng Toán Học (Thuật Toán OMS)</div>
-      <div style="display:flex; gap: 15px;">
-        <div style="flex:1; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; font-family:monospace; font-size:0.8rem; color:#cbd5e1;">
-          <span style="color:#a855f7;">// 1. Kiểm tra lịm đi (Bất tỉnh)</span><br>
+      <div class="card-title"><i class="fa fa-calculator"></i> Bằng Chứng Toán Học &amp; Thuật Toán Quyết Định</div>
+      <div style="display:flex; gap: 15px;" id="mathContainer">
+        <div id="mathBoxLeft" style="flex:1; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; font-family:monospace; font-size:0.8rem; color:#cbd5e1;">
+          <span style="color:#a855f7;">// 1. Kiểm tra lịm đi (Full Dual-Fusion)</span><br>
           EAR = (||p2-p6|| + ||p3-p5||) / (2 * ||p1-p4||)<br>
-          <span style="color:#ef4444">if (EAR < 0.2) and (Trunk_Angle > 40°) {<br>
+          <span style="color:#ef4444">if (EAR &lt; 0.2) and (Trunk_Angle &gt; 40°) {<br>
           &nbsp;&nbsp;start_timer()<br>
           }</span>
         </div>
-        <div style="flex:1; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; font-family:monospace; font-size:0.8rem; color:#cbd5e1;">
+        <div id="mathBoxRight" style="flex:1; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; font-family:monospace; font-size:0.8rem; color:#cbd5e1;">
           <span style="color:#38bdf8;">// 2. Kích hoạt Cấp Cứu 115</span><br>
           T_still = current_time() - timer_start<br>
-          <span style="color:#ef4444">if (T_still > 180.0) {<br>
+          <span style="color:#ef4444">if (T_still &gt; 180.0) {<br>
           &nbsp;&nbsp;trigger_level_4_emergency()<br>
           &nbsp;&nbsp;unlock_doors()<br>
           }</span>
@@ -117,9 +215,9 @@
         <div class="level-title" style="color:var(--green)"><i class="fa fa-bullhorn"></i> CẤP 2: NGƯỜI ĐI ĐƯỜNG</div>
         <div class="level-desc">Màn hình kính ngoài: 'CẦN TRỢ GIÚP Y TẾ'<br>Loa ngoài xe phát thanh nhờ giúp đỡ</div>
       </div>
-      <div class="level-box level-3">
-        <div class="level-title" style="color:var(--accent)"><i class="fa fa-headset"></i> CẤP 3: TỔNG ĐÀI ĐỘI XE</div>
-        <div class="level-desc">Tele-op mở đàm thoại 2 chiều vào xe<br>Điều hướng xe cơ động Field Support Van</div>
+      <div id="levelBox3" class="level-box level-3">
+        <div id="levelTitle3" class="level-title" style="color:var(--accent)"><i class="fa fa-headset"></i> CẤP 3: TỔNG ĐÀI ĐỘI XE</div>
+        <div id="levelDesc3" class="level-desc">Tele-op mở đàm thoại 2 chiều vào xe<br>Điều hướng xe cơ động Field Support Van</div>
       </div>
       <div class="level-box level-4">
         <div class="level-title" style="color:var(--danger)"><i class="fa fa-phone-volume"></i> CẤP 4: CỨU THƯƠNG 115</div>
@@ -129,7 +227,7 @@
 
     <div class="card">
       <div class="card-title"><i class="fa fa-desktop"></i> Màn Hình Cabin (HMI)</div>
-      <div class="hmi-screen">
+      <div id="hmiScreen" class="hmi-screen">
         [KHẨN CẤP Y TẾ: ĐANG GỌI 115]<br><br>
         Hành khách không có phản ứng sau 3 phút.<br>
         Hệ thống đang điều xe cấp cứu.
@@ -138,37 +236,25 @@
 
     <div class="card">
       <div class="card-title"><i class="fa fa-network-wired"></i> CAN Bus Telemetry (0x0F0 / 0x130)</div>
-      <div class="can-terminal">
+      <div id="canTerminal" class="can-terminal">
         [CAN 0x0F0 DIP_CMD] : 4C 1C 1E 00 00 00 06 C2<br>
         [CAN 0x130 OMS_STS] : 07 00 00 00 00 00 06 CA<br>
-        &bull; LEVEL_4_EMERGENCY : TRUE<br>
-        &bull; ECALL_TRIGGER     : TRUE<br>
-        &bull; REMOTE_UNLOCK     : TRUE (CRC8 OK)
+        &bull; FUSION_STATUS    : DUAL_FUSION_OK<br>
+        &bull; LEVEL_4_EMERGENCY: TRUE<br>
+        &bull; ECALL_TRIGGER    : TRUE<br>
+        &bull; REMOTE_UNLOCK    : TRUE (CRC8 OK)
       </div>
     </div>
   </div>
 </div>
 
 <script>
-// Draw logic for the Unresponsive Passenger
 const ctx = document.getElementById("cabinCanvas").getContext("2d");
 const fCtx = document.getElementById("faceCanvas").getContext("2d");
 
-// Draw Slumped Body
-ctx.fillStyle = "#0f172a";
-ctx.roundRect(170, 180, 140, 110, 10);
-ctx.fill();
-ctx.strokeStyle = "#334155"; ctx.lineWidth = 1.5; ctx.stroke();
+let currentMode = "dual";
 
-let cx = 240, cy = 250;
-ctx.strokeStyle = "#ef4444"; ctx.fillStyle = "#ef4444"; ctx.lineWidth = 2.5;
-ctx.beginPath(); ctx.arc(cx + 40, cy - 10, 12, 0, Math.PI * 2); ctx.stroke(); // Head leaning right
-ctx.beginPath(); ctx.moveTo(cx + 40, cy + 2); ctx.lineTo(cx, cy + 30); ctx.stroke(); // Slumped spine
-ctx.beginPath(); ctx.moveTo(cx + 25, cy + 12); ctx.lineTo(cx + 10, cy + 40); ctx.stroke(); // Arm dropping
-ctx.beginPath(); ctx.moveTo(cx - 10, cy + 30); ctx.lineTo(cx - 15, cy + 70); ctx.stroke(); // Legs
-
-// Draw Passed Out Face (Eyes closed, mouth open, head tilt)
-fCtx.strokeStyle = "#334155"; fCtx.lineWidth = 1; fCtx.beginPath(); fCtx.arc(80, 80, 65, 0, Math.PI*2); fCtx.stroke();
+// 50-point landmark calculations
 let headTilt = 0.45;
 let pts = [];
 function addPt(x, y) {
@@ -187,17 +273,362 @@ addPt(80-mw,lipY); addPt(80-mw/2,lipY-mh/2); addPt(80,lipY-mh); addPt(80+mw/2,li
 addPt(80+mw/2,lipY+mh/2); addPt(80,lipY+mh); addPt(80-mw/2,lipY+mh/2);
 addPt(80-mw*0.8,lipY); addPt(80,lipY-mh*0.8); addPt(80+mw*0.8,lipY); addPt(80,lipY+mh*0.8);
 
-function drawPath(points, color, closed=false) {
-  fCtx.strokeStyle = color; fCtx.lineWidth = 1.5; fCtx.beginPath();
-  fCtx.moveTo(points[0][0], points[0][1]);
-  for(let i=1; i<points.length; i++) fCtx.lineTo(points[i][0], points[i][1]);
-  if (closed) fCtx.closePath();
-  fCtx.stroke();
+function drawPath(targetCtx, points, color, closed=false) {
+  targetCtx.strokeStyle = color; targetCtx.lineWidth = 1.5; targetCtx.beginPath();
+  targetCtx.moveTo(points[0][0], points[0][1]);
+  for(let i=1; i<points.length; i++) targetCtx.lineTo(points[i][0], points[i][1]);
+  if (closed) targetCtx.closePath();
+  targetCtx.stroke();
 }
-drawPath(pts.slice(0, 5), "#ef4444"); drawPath(pts.slice(5, 10), "#ef4444");
-drawPath(pts.slice(10, 14), "#ef4444");
-drawPath(pts.slice(14, 22), "#ef4444", true); drawPath(pts.slice(22, 30), "#ef4444", true);
-drawPath(pts.slice(30, 38), "#ef4444", true); drawPath(pts.slice(38, 42), "#ef4444", true);
+
+function drawCabin(mode) {
+  ctx.clearRect(0, 0, 480, 360);
+
+  // Seat silhouette
+  ctx.fillStyle = "#0f172a";
+  ctx.beginPath();
+  ctx.roundRect(170, 180, 140, 110, 10);
+  ctx.fill();
+  ctx.strokeStyle = "#334155"; ctx.lineWidth = 1.5; ctx.stroke();
+
+  let cx = 240, cy = 250;
+
+  if (mode === "skel_occ") {
+    // Skeleton occluded by blanket / coat
+    ctx.fillStyle = "rgba(100, 116, 139, 0.25)";
+    ctx.beginPath();
+    ctx.roundRect(180, 195, 120, 90, 8);
+    ctx.fill();
+    ctx.strokeStyle = "#f59e0b";
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Warning overlay on body canvas
+    ctx.fillStyle = "#f59e0b";
+    ctx.font = "bold 11px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("[SKELETON OCCLUDED: BLANKET / COAT]", 240, 240);
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "10px sans-serif";
+    ctx.fillText("Halpe-26 Joints: < 20 Valid (Torso Inactive)", 240, 258);
+    ctx.fillText("Transitioning to Unimodal Face-Active", 240, 274);
+    return;
+  }
+
+  // Draw Slumped Body Skeleton
+  let bodyColor = (mode === "face_occ") ? "#f59e0b" : "#ef4444";
+  ctx.strokeStyle = bodyColor;
+  ctx.fillStyle = bodyColor;
+  ctx.lineWidth = 2.5;
+
+  // Head leaning right
+  ctx.beginPath();
+  ctx.arc(cx + 40, cy - 10, 12, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Slumped spine
+  ctx.beginPath();
+  ctx.moveTo(cx + 40, cy + 2);
+  ctx.lineTo(cx, cy + 30);
+  ctx.stroke();
+
+  // Arm dropping
+  ctx.beginPath();
+  ctx.moveTo(cx + 25, cy + 12);
+  ctx.lineTo(cx + 10, cy + 40);
+  ctx.stroke();
+
+  // Legs
+  ctx.beginPath();
+  ctx.moveTo(cx - 10, cy + 30);
+  ctx.lineTo(cx - 15, cy + 70);
+  ctx.stroke();
+
+  // Keypoint joints
+  const joints = [[cx+40, cy-10], [cx+40, cy+2], [cx, cy+30], [cx+25, cy+12], [cx+10, cy+40], [cx-10, cy+30], [cx-15, cy+70]];
+  ctx.fillStyle = "#fff";
+  joints.forEach(j => {
+    ctx.beginPath(); ctx.arc(j[0], j[1], 3, 0, Math.PI * 2); ctx.fill();
+  });
+
+  if (mode === "face_occ") {
+    // Highlight trunk angle vector & fallback badge
+    ctx.strokeStyle = "#f59e0b";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + 30);
+    ctx.lineTo(cx, cy - 20); // vertical reference
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = "#f59e0b";
+    ctx.font = "bold 11px monospace";
+    ctx.textAlign = "left";
+    ctx.fillText("Trunk θ = 41.9° (> 40°)", cx + 15, cy - 25);
+    ctx.fillStyle = "rgba(245, 158, 11, 0.15)";
+    ctx.fillRect(10, 10, 220, 24);
+    ctx.fillStyle = "#f59e0b";
+    ctx.font = "bold 10px monospace";
+    ctx.fillText("[SOTIF: UNIMODAL POSE ACTIVE]", 16, 26);
+  } else if (mode === "net_loss") {
+    // Highlight network loss MRM banner
+    ctx.fillStyle = "rgba(239, 68, 68, 0.2)";
+    ctx.fillRect(10, 10, 270, 24);
+    ctx.fillStyle = "#ef4444";
+    ctx.font = "bold 10px monospace";
+    ctx.textAlign = "left";
+    ctx.fillText("[AUTONOMOUS MRM: SAFE PULLOVER]", 16, 26);
+  }
+}
+
+function drawFace(mode) {
+  fCtx.clearRect(0, 0, 160, 160);
+
+  if (mode === "face_occ") {
+    // Face occluded / camera masked overlay
+    fCtx.fillStyle = "#0c121e";
+    fCtx.fillRect(0, 0, 160, 160);
+    fCtx.strokeStyle = "#f59e0b";
+    fCtx.lineWidth = 1.5;
+    fCtx.setLineDash([4, 4]);
+    fCtx.strokeRect(10, 10, 140, 140);
+    fCtx.setLineDash([]);
+
+    // Draw masked hatch
+    fCtx.strokeStyle = "rgba(245, 158, 11, 0.25)";
+    fCtx.lineWidth = 1;
+    for (let i = -100; i < 260; i += 15) {
+      fCtx.beginPath();
+      fCtx.moveTo(i, 0);
+      fCtx.lineTo(i + 160, 160);
+      fCtx.stroke();
+    }
+
+    fCtx.fillStyle = "#f59e0b";
+    fCtx.font = "bold 11px monospace";
+    fCtx.textAlign = "center";
+    fCtx.fillText("[MẶT BỊ CHE]", 80, 70);
+    fCtx.fillStyle = "#94a3b8";
+    fCtx.font = "10px sans-serif";
+    fCtx.fillText("Landmarks: 0/50 Valid", 80, 88);
+    fCtx.fillText("Bỏ qua EAR (Pose Active)", 80, 104);
+    return;
+  }
+
+  // Draw face contour circle
+  fCtx.strokeStyle = "#334155";
+  fCtx.lineWidth = 1;
+  fCtx.beginPath();
+  fCtx.arc(80, 80, 65, 0, Math.PI * 2);
+  fCtx.stroke();
+
+  let faceColor = (mode === "skel_occ") ? "#f59e0b" : "#ef4444";
+  drawPath(fCtx, pts.slice(0, 5), faceColor);
+  drawPath(fCtx, pts.slice(5, 10), faceColor);
+  drawPath(fCtx, pts.slice(10, 14), faceColor);
+  drawPath(fCtx, pts.slice(14, 22), faceColor, true);
+  drawPath(fCtx, pts.slice(22, 30), faceColor, true);
+  drawPath(fCtx, pts.slice(30, 38), faceColor, true);
+  drawPath(fCtx, pts.slice(38, 42), faceColor, true);
+
+  if (mode === "skel_occ") {
+    fCtx.fillStyle = "#f59e0b";
+    fCtx.font = "bold 10px monospace";
+    fCtx.textAlign = "center";
+    fCtx.fillText("Pitch: -28.5° | EAR: 0.05", 80, 20);
+  }
+}
+
+function setFallbackMode(mode) {
+  currentMode = mode;
+
+  // Reset button states
+  const btnIds = ["btnDual", "btnFaceOcc", "btnSkelOcc", "btnNetLoss"];
+  btnIds.forEach(id => {
+    const el = document.getElementById(id);
+    el.className = "fallback-btn";
+  });
+
+  const headerBadge = document.getElementById("headerFallbackBadge");
+  const statusTag = document.getElementById("fallbackStatusTag");
+  const notice = document.getElementById("fallbackNotice");
+  const feedStatus = document.getElementById("canvasFeedStatus");
+  const mathLeft = document.getElementById("mathBoxLeft");
+  const mathRight = document.getElementById("mathBoxRight");
+  const levelBox3 = document.getElementById("levelBox3");
+  const levelTitle3 = document.getElementById("levelTitle3");
+  const levelDesc3 = document.getElementById("levelDesc3");
+  const hmi = document.getElementById("hmiScreen");
+  const terminal = document.getElementById("canTerminal");
+  const earVal = document.getElementById("gaugeEarVal");
+  const earBar = document.getElementById("gaugeEarBar");
+  const trunkVal = document.getElementById("gaugeTrunkVal");
+  const trunkBar = document.getElementById("gaugeTrunkBar");
+  const pitchRow = document.getElementById("gaugePitchRow");
+
+  pitchRow.style.display = "none";
+  levelBox3.className = "level-box level-3";
+  levelTitle3.style.color = "var(--accent)";
+  levelTitle3.innerHTML = '<i class="fa fa-headset"></i> CẤP 3: TỔNG ĐÀI ĐỘI XE';
+  levelDesc3.innerHTML = "Tele-op mở đàm thoại 2 chiều vào xe<br>Điều hướng xe cơ động Field Support Van";
+
+  if (mode === "dual") {
+    document.getElementById("btnDual").className = "fallback-btn active";
+    headerBadge.style.background = "rgba(16,185,129,0.2)";
+    headerBadge.style.color = "var(--green)";
+    headerBadge.style.borderColor = "var(--green)";
+    headerBadge.innerHTML = '<i class="fa fa-shield-halved"></i> Sensors: Dual-Fusion Active';
+
+    statusTag.style.background = "rgba(16,185,129,0.2)";
+    statusTag.style.color = "var(--green)";
+    statusTag.style.borderColor = "var(--green)";
+    statusTag.innerText = "Sensors: Dual-Fusion Active";
+
+    notice.style.background = "rgba(16,185,129,0.1)";
+    notice.style.borderColor = "rgba(16,185,129,0.3)";
+    notice.innerHTML = '<strong style="color:var(--green);"><i class="fa fa-circle-check"></i> Dual-Fusion Hoạt Động Định Mức:</strong> Cả 2 luồng Face (Mesh 50 điểm) và Pose (Halpe-26) đều khả dụng. Quyết định kết hợp đồng thời độ mở mắt EAR &lt; 0.20 và góc thân nghiêng &gt; 40&deg;.';
+
+    feedStatus.style.color = "var(--green)";
+    feedStatus.innerHTML = '<i class="fa fa-satellite-dish"></i> 2/2 Sensors Operational';
+
+    earVal.innerText = "0.05";
+    earVal.style.color = "var(--danger)";
+    earBar.style.width = "15%";
+    earBar.style.background = "var(--danger)";
+
+    trunkVal.innerText = "41.9°";
+    trunkVal.style.color = "var(--danger)";
+    trunkBar.style.width = "90%";
+    trunkBar.style.background = "var(--danger)";
+
+    mathLeft.innerHTML = '<span style="color:#a855f7;">// 1. Kiểm tra lịm đi (Full Dual-Fusion)</span><br>EAR = (||p2-p6|| + ||p3-p5||) / (2 * ||p1-p4||)<br><span style="color:#ef4444">if (EAR &lt; 0.2) and (Trunk_Angle &gt; 40°) {<br>&nbsp;&nbsp;start_timer()<br>}</span>';
+
+    hmi.innerHTML = '[KHẨN CẤP Y TẾ: ĐANG GỌI 115]<br><br>Hành khách không có phản ứng sau 3 phút.<br>Hệ thống đang điều xe cấp cứu.';
+
+    terminal.innerHTML = '[CAN 0x0F0 DIP_CMD] : 4C 1C 1E 00 00 00 06 C2<br>[CAN 0x130 OMS_STS] : 07 00 00 00 00 00 06 CA<br>&bull; FUSION_STATUS    : DUAL_FUSION_OK<br>&bull; LEVEL_4_EMERGENCY: TRUE<br>&bull; ECALL_TRIGGER    : TRUE<br>&bull; REMOTE_UNLOCK    : TRUE (CRC8 OK)';
+  }
+  else if (mode === "face_occ") {
+    document.getElementById("btnFaceOcc").className = "fallback-btn active warn";
+    headerBadge.style.background = "rgba(245,158,11,0.2)";
+    headerBadge.style.color = "var(--accent)";
+    headerBadge.style.borderColor = "var(--accent)";
+    headerBadge.innerHTML = '<i class="fa fa-mask-face"></i> Face Occluded Fallback: Pose-Active';
+
+    statusTag.style.background = "rgba(245,158,11,0.2)";
+    statusTag.style.color = "var(--accent)";
+    statusTag.style.borderColor = "var(--accent)";
+    statusTag.innerText = "Face Occluded: Pose-Active";
+
+    notice.style.background = "rgba(245,158,11,0.1)";
+    notice.style.borderColor = "rgba(245,158,11,0.3)";
+    notice.innerHTML = '<strong style="color:var(--accent);"><i class="fa fa-mask-face"></i> Unimodal Pose Fallback:</strong> Mặt bị che khuất (khẩu trang / mũ trùm / ngược sáng). Hệ thống ngắt điều kiện EAR, kích hoạt can thiệp chỉ dựa trên góc gập thân Halpe-26 (Trunk Lean &theta; &gt; 40&deg;).';
+
+    feedStatus.style.color = "var(--accent)";
+    feedStatus.innerHTML = '<i class="fa fa-triangle-exclamation"></i> 1/2 Sensor Degraded (Pose-Only)';
+
+    earVal.innerText = "[KHUẤT / N/A]";
+    earVal.style.color = "var(--sub)";
+    earBar.style.width = "0%";
+    earBar.style.background = "var(--sub)";
+
+    trunkVal.innerText = "41.9° (VƯỢT NGƯỠNG)";
+    trunkVal.style.color = "var(--accent)";
+    trunkBar.style.width = "90%";
+    trunkBar.style.background = "var(--accent)";
+
+    mathLeft.innerHTML = '<span style="color:#f59e0b;">// SOTIF Fallback: Khuất Mặt (Pose-Only)</span><br><span style="color:#9ca3af;">// Bỏ qua EAR (Facial Landmarks &lt; 50)</span><br><span style="color:#ef4444">if (is_face_occluded) and (Trunk_Angle &gt; 40°) {<br>&nbsp;&nbsp;start_timer() // Kích hoạt chỉ bằng Pose<br>}</span>';
+
+    hmi.innerHTML = '[KHẨN CẤP Y TẾ: POSE-FALLBACK ACTIVE]<br><br>Khuôn mặt bị che. Gục thân bất động 220s.<br>Tự động kích hoạt cứu trợ cấp 4.';
+
+    terminal.innerHTML = '[CAN 0x0F0 DIP_CMD] : 4C 1C 1E 00 00 00 06 C2<br>[CAN 0x130 OMS_STS] : 07 10 00 00 00 00 06 DB<br>&bull; FUSION_STATUS    : UNIMODAL_POSE_FALLBACK<br>&bull; FACE_OCCLUDED    : TRUE (CAMERA_MASKED)<br>&bull; POSE_SOLO_TRIGGER: TRUE (Trunk θ = 41.9°)<br>&bull; REMOTE_UNLOCK    : TRUE (CRC8 OK)';
+  }
+  else if (mode === "skel_occ") {
+    document.getElementById("btnSkelOcc").className = "fallback-btn active warn";
+    headerBadge.style.background = "rgba(245,158,11,0.2)";
+    headerBadge.style.color = "var(--accent)";
+    headerBadge.style.borderColor = "var(--accent)";
+    headerBadge.innerHTML = '<i class="fa fa-person-shelter"></i> Skeleton Occluded Fallback: Face-Active';
+
+    statusTag.style.background = "rgba(245,158,11,0.2)";
+    statusTag.style.color = "var(--accent)";
+    statusTag.style.borderColor = "var(--accent)";
+    statusTag.innerText = "Skeleton Occluded: Face-Active";
+
+    notice.style.background = "rgba(245,158,11,0.1)";
+    notice.style.borderColor = "rgba(245,158,11,0.3)";
+    notice.innerHTML = '<strong style="color:var(--accent);"><i class="fa fa-person-shelter"></i> Unimodal Face Fallback:</strong> Khung xương bị chăn mền / áo khoác dày che khuất. Hệ thống bỏ qua góc thân, kích hoạt can thiệp dựa trên mắt nhắm kéo dài (EAR &lt; 0.15) kết hợp góc gục đầu (Pitch &lt; -20&deg;).';
+
+    feedStatus.style.color = "var(--accent)";
+    feedStatus.innerHTML = '<i class="fa fa-triangle-exclamation"></i> 1/2 Sensor Degraded (Face-Only)';
+
+    pitchRow.style.display = "block";
+
+    earVal.innerText = "0.05 (NHẮM KÍN)";
+    earVal.style.color = "var(--danger)";
+    earBar.style.width = "15%";
+    earBar.style.background = "var(--danger)";
+
+    trunkVal.innerText = "[KHUẤT / N/A]";
+    trunkVal.style.color = "var(--sub)";
+    trunkBar.style.width = "0%";
+    trunkBar.style.background = "var(--sub)";
+
+    mathLeft.innerHTML = '<span style="color:#f59e0b;">// SOTIF Fallback: Khuất Thân (Face-Only)</span><br><span style="color:#9ca3af;">// Bỏ qua Trunk (Halpe-26 Joints &lt; 20)</span><br><span style="color:#ef4444">if (EAR &lt; 0.15) and (Head_Pitch &lt; -20°) {<br>&nbsp;&nbsp;start_timer() // Kích hoạt chỉ bằng Face<br>}</span>';
+
+    hmi.innerHTML = '[KHẨN CẤP Y TẾ: FACE-FALLBACK ACTIVE]<br><br>Thân bị che. Mắt nhắm + gục đầu bất động 220s.<br>Tự động kích hoạt cứu trợ cấp 4.';
+
+    terminal.innerHTML = '[CAN 0x0F0 DIP_CMD] : 4C 1C 1E 00 00 00 06 C2<br>[CAN 0x130 OMS_STS] : 07 20 00 00 00 00 06 EB<br>&bull; FUSION_STATUS    : UNIMODAL_FACE_FALLBACK<br>&bull; SKEL_OCCLUDED    : TRUE (BLANKET_DETECTED)<br>&bull; FACE_SOLO_TRIGGER: TRUE (EAR=0.05, Pitch=-28°)<br>&bull; REMOTE_UNLOCK    : TRUE (CRC8 OK)';
+  }
+  else if (mode === "net_loss") {
+    document.getElementById("btnNetLoss").className = "fallback-btn active danger";
+    headerBadge.style.background = "rgba(239,68,68,0.25)";
+    headerBadge.style.color = "var(--danger)";
+    headerBadge.style.borderColor = "var(--danger)";
+    headerBadge.innerHTML = '<i class="fa fa-triangle-exclamation"></i> Network Loss: Autonomous Failsafe';
+
+    statusTag.style.background = "rgba(239,68,68,0.25)";
+    statusTag.style.color = "var(--danger)";
+    statusTag.style.borderColor = "var(--danger)";
+    statusTag.innerText = "Network Loss: Autonomous Failsafe";
+
+    notice.style.background = "rgba(239,68,68,0.12)";
+    notice.style.borderColor = "rgba(239,68,68,0.3)";
+    notice.innerHTML = '<strong style="color:var(--danger);"><i class="fa fa-triangle-exclamation"></i> Safe-State Autonomous Failsafe:</strong> Mất kết nối viễn thông 4G/5G đến tổng đài Tele-op. Xe tự trị kích hoạt Quy Tắc An Toàn Tự Trị: Tự tấp lề (MRM), phát còi/đèn SOS cục bộ, và tự mở khóa cửa không cần lệnh cloud.';
+
+    feedStatus.style.color = "var(--danger)";
+    feedStatus.innerHTML = '<i class="fa fa-wifi-slash"></i> Tele-op Uplink Offline (Failsafe Active)';
+
+    levelBox3.className = "level-box level-offline";
+    levelTitle3.style.color = "var(--danger)";
+    levelTitle3.innerHTML = '<i class="fa fa-wifi-slash"></i> CẤP 3: TỔNG ĐÀI ĐỘI XE [MẤT MẠNG - BỎ QUA]';
+    levelDesc3.innerHTML = '<strong style="color:var(--danger);">Mất liên lạc viễn thông 4G/5G. Chuyển thẳng sang xử lý an toàn tự trị tại chỗ.</strong>';
+
+    earVal.innerText = "0.05";
+    earVal.style.color = "var(--danger)";
+    earBar.style.width = "15%";
+    earBar.style.background = "var(--danger)";
+
+    trunkVal.innerText = "41.9°";
+    trunkVal.style.color = "var(--danger)";
+    trunkBar.style.width = "90%";
+    trunkBar.style.background = "var(--danger)";
+
+    mathLeft.innerHTML = '<span style="color:#ef4444;">// SOTIF Failsafe: Mất Liên Lạc Đội Xe</span><br><span style="color:#9ca3af;">// Tele-op Heartbeat Ping Timeout &gt; 3.0s</span><br><span style="color:#ef4444">if (teleop_link_lost) {<br>&nbsp;&nbsp;trigger_autonomous_mrm_pullover()<br>&nbsp;&nbsp;force_local_door_unlock()<br>}</span>';
+
+    hmi.innerHTML = '[MẤT MẠNG TỔNG ĐÀI: AN TOÀN TỰ TRỊ]<br><br>Xe tự động tấp lề an toàn (MRM).<br>Mở toàn bộ khóa cửa & phát loa SOS cục bộ.';
+
+    terminal.innerHTML = '[CAN 0x0F0 DIP_CMD] : 4E 1C 1E 00 00 00 07 F4<br>[CAN 0x130 OMS_STS] : 07 00 80 00 00 00 07 B1<br>&bull; TELEOP_LINK_STATE: DISCONNECTED (TIMEOUT &gt; 3s)<br>&bull; AUTONOMOUS_MRM    : SAFE_PULLOVER_ACTIVE<br>&bull; LOCAL_SOS_BEACON : BROADCASTING (EXTERIOR)<br>&bull; EMERGENCY_UNLOCK  : FORCED_ACTIVE (FAILSAFE)';
+  }
+
+  drawCabin(mode);
+  drawFace(mode);
+}
+
+// Initial render
+setFallbackMode("dual");
 </script>
 </body>
 </html>
