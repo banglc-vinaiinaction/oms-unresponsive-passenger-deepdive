@@ -47,22 +47,23 @@
 
   <!-- SLIDE 2: Evolution -->
   <section>
-    <h2>1 · Sự Khai Tử Của DMS, Sự Lên Ngôi Của OMS</h2>
-    <p class="tagline">Vì sao Robotaxi L4 lại khác biệt hoàn toàn với tính năng tự lái hiện tại?</p>
+    <h2>1 · Phân Cấp Tự Lái SAE: Từ L2 đến L4</h2>
+    <p class="tagline">Sự khác biệt cốt lõi về trách nhiệm của người ngồi trên xe</p>
 
-    <div style="display:flex; flex-direction:column; gap:10px;">
-      <div class="card" style="border-left: 4px solid #64748b; padding: 20px;">
-        <div class="card-title" style="color:#94a3b8;"><i class="fa fa-car"></i> Level 2 (ADAS) &amp; Level 3 (Handoff)</div>
-        <p style="font-size:0.8em; color:#cbd5e1; margin-bottom:0;">
-          Tài xế vẫn chịu trách nhiệm cuối cùng. Hệ thống chỉ cần <strong>DMS (Giám sát tài xế)</strong> để xem mắt có nhìn đường không. Nếu khách phía sau bị đột quỵ hay nôn mửa &rarr; <em>Tài xế tự lo, xe không quan tâm.</em>
-        </p>
+    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+      <div class="card" style="border-top: 4px solid #64748b; padding: 15px;">
+        <div class="card-title" style="color:#94a3b8; font-size:1em;"><i class="fa fa-hands-holding-circle"></i> Level 2 (ADAS)</div>
+        <p style="font-size:0.75em; color:#cbd5e1; margin-bottom:0;"><strong>Hỗ trợ lái:</strong> Xe kiểm soát vô lăng và chân ga (như Adaptive Cruise Control, Lane Keep). Tuy nhiên, <strong>người lái phải luôn chú ý quan sát đường</strong> và chịu trách nhiệm 100%.</p>
       </div>
 
-      <div class="card" style="border-left: 4px solid var(--accent); padding: 20px;">
-        <div class="card-title" style="color:var(--accent);"><i class="fa fa-robot"></i> Level 4 (Robotaxi Không Người Lái)</div>
-        <p style="font-size:0.8em; color:#cbd5e1; margin-bottom:0;">
-          Vô lăng biến mất. Bác tài xế bị "sa thải". Trách nhiệm dội 100% về hãng xe. DMS trở nên vô dụng. Hệ thống buộc phải chuyển sang <strong>OMS (Giám sát khoang khách)</strong> để đóng vai trò làm "tai mắt" bảo vệ hành khách.
-        </p>
+      <div class="card" style="border-top: 4px solid var(--accent3); padding: 15px;">
+        <div class="card-title" style="color:var(--accent3); font-size:1em;"><i class="fa fa-clock-rotate-left"></i> Level 3 (Conditional)</div>
+        <p style="font-size:0.75em; color:#cbd5e1; margin-bottom:0;"><strong>Tự lái có điều kiện:</strong> Người lái có thể thả tay, không cần nhìn đường. Nhưng <strong>bắt buộc phải sẵn sàng nhận lại vô lăng (take-over)</strong> trong vài giây khi hệ thống yêu cầu.</p>
+      </div>
+
+      <div class="card" style="border-top: 4px solid var(--accent); padding: 15px;">
+        <div class="card-title" style="color:var(--accent); font-size:1em;"><i class="fa fa-robot"></i> Level 4 (High Auto)</div>
+        <p style="font-size:0.75em; color:#cbd5e1; margin-bottom:0;"><strong>Tự động hóa (Robotaxi):</strong> Hệ thống tự xử lý mọi tình huống kể cả khi lỗi. <strong>Không cần người lái</strong>, không có yêu cầu take-over. Mọi người trên xe chỉ là Hành Khách.</p>
       </div>
     </div>
   </section>
