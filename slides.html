@@ -41,18 +41,43 @@
 
   <!-- SLIDE 1: Title -->
   <section class="center">
-    <h1><i class="fa fa-truck-medical"></i> OMS Deep Dive: Xử Lý Khách Bất Tỉnh</h1>
-    <h3 style="color:var(--sub)">Bài toán khó nhất của Xe Robotaxi Không Người Lái</h3>
-    
-    <div class="card" style="max-width:800px; margin: 30px auto; text-align:left; border-top: 3px solid var(--danger);">
-      <div class="card-title" style="color:var(--danger)"><i class="fa fa-triangle-exclamation"></i> Vấn Đề (Pain Point)</div>
-      <p style="font-size:0.8em; color:#cbd5e1;">Xe đến điểm đến nhưng hành khách không chịu xuống. Họ đang ngủ say? Đang cố tình ngồi lỳ? Hay vừa bị <strong>đột quỵ / nhồi máu cơ tim</strong> ở băng ghế sau? Không có tài xế trên xe để gọi dậy hay kiểm tra, hãng xe phải tự chịu trách nhiệm nếu có người tử vong trong xe.</p>
+    <h1><i class="fa fa-truck-medical"></i> Khách Bất Tỉnh Trên Robotaxi</h1>
+    <h3 style="color:var(--sub)">Bài toán đạo đức &amp; pháp lý sinh tử của hệ thống L4</h3>
+  </section>
+
+  <!-- SLIDE 2: Evolution -->
+  <section>
+    <h2>1 · Sự Khai Tử Của DMS, Sự Lên Ngôi Của OMS</h2>
+    <p class="tagline">Vì sao Robotaxi L4 lại khác biệt hoàn toàn với tính năng tự lái hiện tại?</p>
+
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <div class="card" style="border-left: 4px solid #64748b; padding: 20px;">
+        <div class="card-title" style="color:#94a3b8;"><i class="fa fa-car"></i> Level 2 (ADAS) &amp; Level 3 (Handoff)</div>
+        <p style="font-size:0.8em; color:#cbd5e1; margin-bottom:0;">
+          Tài xế vẫn chịu trách nhiệm cuối cùng. Hệ thống chỉ cần <strong>DMS (Giám sát tài xế)</strong> để xem mắt có nhìn đường không. Nếu khách phía sau bị đột quỵ hay nôn mửa &rarr; <em>Tài xế tự lo, xe không quan tâm.</em>
+        </p>
+      </div>
+
+      <div class="card" style="border-left: 4px solid var(--accent); padding: 20px;">
+        <div class="card-title" style="color:var(--accent);"><i class="fa fa-robot"></i> Level 4 (Robotaxi Không Người Lái)</div>
+        <p style="font-size:0.8em; color:#cbd5e1; margin-bottom:0;">
+          Vô lăng biến mất. Bác tài xế bị "sa thải". Trách nhiệm dội 100% về hãng xe. DMS trở nên vô dụng. Hệ thống buộc phải chuyển sang <strong>OMS (Giám sát khoang khách)</strong> để đóng vai trò làm "tai mắt" bảo vệ hành khách.
+        </p>
+      </div>
     </div>
   </section>
 
-  <!-- SLIDE 2: Solution Architecture -->
+  <!-- SLIDE 3: Pain Point -->
+  <section class="center">
+    <h2>2 · Nỗi Đau Thực Tế (Pain Point)</h2>
+    <div class="card" style="max-width:850px; margin: 30px auto; text-align:left; border-top: 3px solid var(--danger); padding: 25px;">
+      <p style="font-size:0.9em; color:#cbd5e1; line-height:1.5;">Xe đến điểm đến nhưng hành khách không chịu xuống. Họ đang ngủ say? Đang cố tình ngồi lỳ? Hay vừa bị <strong>nhồi máu cơ tim / đột quỵ</strong> ở băng ghế sau? Không có tài xế để gọi dậy kiểm tra, hãng xe phải đối mặt với rủi ro pháp lý khổng lồ nếu có người tử vong trong xe.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: Solution Architecture -->
   <section>
-    <h2>1 · Kiến Trúc Nhận Diện Đa Thức (Fusion)</h2>
+    <h2>3 · Kiến Trúc Nhận Diện Đa Thức (Fusion)</h2>
     <p class="tagline">Kết hợp nhận diện khuôn mặt (Face 50-pt) và dáng ngồi (Body 26-pt)</p>
 
     <div class="two-col">
@@ -73,9 +98,9 @@
     </div>
   </section>
 
-  <!-- SLIDE 3: Math Evidence -->
+  <!-- SLIDE 5: Math Evidence -->
   <section>
-    <h2>2 · Bằng Chứng Toán Học Lõi</h2>
+    <h2>4 · Bằng Chứng Toán Học Lõi</h2>
     <p class="tagline">Các công thức hình học được tính toán dưới 1ms cho mỗi khung hình (60 FPS)</p>
 
     <div class="two-col">
@@ -113,9 +138,9 @@
     </div>
   </section>
 
-  <!-- SLIDE 4: Escaltion Matrix -->
+  <!-- SLIDE 6: Escaltion Matrix -->
   <section>
-    <h2>3 · Chuỗi Leo Thang 4 Cấp Độ (Escalation)</h2>
+    <h2>5 · Chuỗi Leo Thang 4 Cấp Độ (Escalation)</h2>
     <p class="tagline">Xe tự hành không đứng im chờ chết, nó tự tìm cách cứu người</p>
 
     <div class="two-col">
