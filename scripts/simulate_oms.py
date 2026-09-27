@@ -89,43 +89,24 @@ def run_oms_simulation():
     print("=" * 84)
 
     engine = OMSDecisionEngine()
+    
+    print("\n>>> Deep Dive: Hành Khách Đột Quỵ / Bất Tỉnh (Unresponsive Passenger)")
+    # Create the passenger with trunk lean indicating an unresponsive posture
+    passenger = PassengerOMS(1, SeatPosition.REAR_LEFT, create_mock_halpe26(trunk_lean_dx=70.0), stillness_duration_s=0.0)
+    paxes = [passenger]
 
-    scenarios = [
-        {
-            "name": "Deep Dive: Hành Khách Đột Quỵ / Bất Tỉnh (Unresponsive Passenger)",
-            "passengers": [
-                PassengerOMS(1, SeatPosition.REAR_LEFT, create_mock_halpe26(trunk_lean_dx=70.0), stillness_duration_s=220.0),
-            ],
-            "doors_open": True, "trip_completed": True, "video_loss": False
-        }
-    ]
+    timestamps = [0, 60, 120, 150, 180]
 
-    class DummyAnomaly:
-        def __init__(self, name):
-            self.name = name
-
-    for idx, sc in enumerate(scenarios, 1):
-        print(f"\n[{idx}/{len(scenarios)}] >>> {sc['name']}")
-        paxes = sc["passengers"]
+    for idx, t in enumerate(timestamps, 1):
+        print(f"\n--- Thời gian: t = {t} giây ---")
+        passenger.stillness_duration_s = float(t)
+        
         res = engine.evaluate_cabin(
             passengers=paxes,
-            doors_open=sc["doors_open"],
-            trip_completed=sc["trip_completed"],
-            has_camera_video_loss=sc["video_loss"]
+            doors_open=True,
+            trip_completed=True,
+            has_camera_video_loss=False
         )
-
-        if sc.get("motion_sickness"):
-            res["intervention_level"] = InterventionLevelOMS.LEVEL_2_PASSERBY
-            res["anomalies"].append(DummyAnomaly("MOTION_SICKNESS_ONSET"))
-            res["passerby_actions"] = ["Hé cửa kính 5cm", "Bật đèn Hazard", "Hiển thị thông báo ngoài xe"]
-            res["hmi_actions"] = ["Bật màn hình thư giãn", "Mở gió mát tươi"]
-            
-        if sc.get("warning_duration", 0) > 60.0 and res["intervention_level"] == InterventionLevelOMS.LEVEL_1_CABIN:
-            res["intervention_level"] = InterventionLevelOMS.LEVEL_3_FLEET_OPS
-            res["anomalies"].append(DummyAnomaly("NON_COMPLIANCE_TIMEOUT"))
-            res["fleet_ops_actions"] = ["Tele-operator mở đàm thoại 2 chiều", "Điều xe cơ động Field Support Van", "Tấp xe vào lề"]
-            res["passerby_actions"] = ["Hiển thị thông báo ngoài xe: 'Đang chờ hành khách chấp hành'"]
-            res["hmi_actions"] = ["Màn hình nháy đỏ rực", "Loa lặp lại cảnh báo liên tục"]
 
         level = res["intervention_level"]
         anomalies = [a.name for a in res["anomalies"]]
@@ -177,7 +158,7 @@ def run_oms_simulation():
         time.sleep(0.05)
 
     print("\n" + "=" * 84)
-    print(f"  SIMULATION COMPLETE: All {len(scenarios)} L4 Robotaxi Scenarios Verified Successfully!")
+    print("  SIMULATION COMPLETE: Time-based Unresponsive Passenger Scenario Verified!")
     print("=" * 84)
 
 

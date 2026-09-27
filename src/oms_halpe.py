@@ -229,29 +229,36 @@ class OMSDecisionEngine:
                 result["hmi_actions"].append(f"Loa định hướng {p.seat.value}: 'Quý khách vui lòng thắt dây an toàn để xe lăn bánh'.")
 
             # Airbag suppression rule
-            if trunk_deg > 45.0 or feet_on_dash:
+            if trunk_deg > 40.0 or feet_on_dash:
                 result["airbag_suppressed_seats"].append(p.seat)
                 result["intervention_level"] = max(result["intervention_level"], InterventionLevelOMS.LEVEL_1_CABIN, key=lambda x: x.value)
                 if feet_on_dash:
                     result["anomalies"].append(AnomalyType.FEET_ON_DASHBOARD)
                     result["hmi_actions"].append(f"Màn hình {p.seat.value} cảnh báo vàng: Túi khí phụ đã ngắt do gác chân nguy hiểm!")
-                elif trunk_deg > 45.0:
+                elif trunk_deg > 40.0:
                     result["hmi_actions"].append(f"Màn hình {p.seat.value}: Túi khí điều chỉnh lực nổ giảm do tư thế nằm ngả lưng.")
 
             # Squatter / Unresponsive passenger at dropoff
-            if trip_completed and doors_open and p.stillness_duration_s > 60.0:
+            if trip_completed and doors_open and p.stillness_duration_s >= 60.0:
                 result["anomalies"].append(AnomalyType.SQUATTER_UNRESPONSIVE)
-                if p.stillness_duration_s > 180.0:
-                    # After 3 minutes -> Escalate to Level 3 & 4
+                if p.stillness_duration_s >= 180.0:
+                    # After 3 minutes -> Escalate to Level 4
                     result["intervention_level"] = InterventionLevelOMS.LEVEL_4_EMERGENCY
                     result["hmi_actions"].append("Đèn trần bật sáng cực đại 100% + Còi báo thức âm lượng lớn.")
                     result["passerby_actions"].append("Màn hình kính ngoài hiện: 'CẦN TRỢ GIÚP Y TẾ' + Loa ngoài phát thanh nhờ giúp đỡ.")
                     result["fleet_ops_actions"].append("Tele-operator mở đàm thoại 2 chiều + Điều xe cơ động Field Support Van.")
                     result["law_enforcement_actions"].append("Tự động kích hoạt eCall 115 truyền dữ liệu nhịp thở + Mở khóa cửa từ xa.")
-                else:
+                elif p.stillness_duration_s >= 150.0:
                     result["intervention_level"] = max(result["intervention_level"], InterventionLevelOMS.LEVEL_3_FLEET_OPS, key=lambda x: x.value)
                     result["hmi_actions"].append("Đèn trần bật sáng + Loa báo thức: 'Xe đã đến nơi, xin quý khách rời xe'.")
                     result["fleet_ops_actions"].append("Tele-operator gọi trực tiếp vào cabin qua loa xe.")
+                elif p.stillness_duration_s >= 120.0:
+                    result["intervention_level"] = max(result["intervention_level"], InterventionLevelOMS.LEVEL_2_PASSERBY, key=lambda x: x.value)
+                    result["hmi_actions"].append("Đèn trần bật sáng + Loa báo thức: 'Xe đã đến nơi, xin quý khách rời xe'.")
+                    result["passerby_actions"].append("Màn hình kính ngoài hiện: 'CẦN TRỢ GIÚP Y TẾ' + Loa ngoài phát thanh nhờ giúp đỡ.")
+                else:
+                    result["intervention_level"] = max(result["intervention_level"], InterventionLevelOMS.LEVEL_1_CABIN, key=lambda x: x.value)
+                    result["hmi_actions"].append("Đèn trần bật sáng + Loa báo thức: 'Xe đã đến nơi, xin quý khách rời xe'.")
 
         # Check 4: Inter-passenger violence in ride-pooling
         if len(passengers) >= 2:

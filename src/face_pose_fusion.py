@@ -64,7 +64,7 @@ def evaluate_multimodal_passenger(pax: FusedPassenger, all_passengers: List[Fuse
                     return MultimodalState.HARASSMENT_VIOLENCE
                     
     # MEDICAL_INCAPACITATION (Zero EAR / eyes closed + torso collapsed)
-    if ear < 0.15 and trunk_angle > 45.0:
+    if ear < 0.2 and trunk_angle > 40.0:
         return MultimodalState.MEDICAL_INCAPACITATION
         
     # MOTION_SICKNESS (High MAR or grimace + hand to mouth + head bobbing)
