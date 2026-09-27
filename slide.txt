@@ -1,0 +1,584 @@
+
+VLearn
+Bài 10 · Vinfast OMS DMS
+0/1 bài
+Đặt câu hỏi với AI
+Gửi yêu cầu
+L
+Nội dung bài học
+Module 1
+Theory
+Part 1Đang học
+Từng trang
+Cuộn dọc
+100%
+Slide
+/ 46
+DMS & OMS
+Từ Keypoint Đến Hành Vi · AICB-P2T4 · Ngày 10
+Giảng viên
+VinUniversity · Data Track
+
+Kéo đến trang này để mở note riêng của trang.
+?
+HÃY SUY NGHĨ...
+“Ngày 04 để lại một câu hỏi chưa trả
+lời: khuôn mặt trong cabin là tín hiệu,
+không thể làm mờ như ảnh ngoài phố.
+Vậy một hệ thống nhìn thẳng vào mặt
+tài xế 10 lần/giây, suốt hàng giờ lái
+xe, bảo vệ dữ liệu đó bằng cách nào?”
+Giữ câu hỏi này trong đầu khi học bài hôm nay
+
+Kéo đến trang này để mở note riêng của trang.
+Nội dung bài học
+1. DMS & OMS: Là Gì & Dùng Để Làm Gì
+2. Từ Keypoint Đến Hành Vi
+3. DMS: Xây Dựng Dữ Liệu
+4. OMS: Xây Dựng Dữ Liệu
+5. Thực Hành
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 1 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+01DMS & OMS: Là Gì & Dùng Để
+Làm Gì
+Định nghĩa, ứng dụng thật, và vì sao đặc biệt quan trọng
+trên xe tự lái
+
+Kéo đến trang này để mở note riêng của trang.
+Hai chữ viết tắt, hai hướng camera
+■ Cả hai đều là camera quay vào trong khoang xe (cabin) – ngược hướng với
+camera ADAS (Advanced Driver Assistance Systems – hệ thống hỗ trợ lái)
+vốn quay ra đường.
+■
+DMS – Driver Monitoring System — camera đặt trên trụ lái hoặc táp-lô,
+chỉ nhìn khuôn mặt và mắt người lái: họ có đang tỉnh táo, có đang nhìn
+đường không.
+■
+OMS – Occupant Monitoring System — camera góc rộng (thường gắn
+trần xe), nhìn toàn bộ khoang xe: ai đang ngồi ở đâu, tư thế nào, có thắt
+dây an toàn không.
+Nói ngắn gọn: DMS hỏi ”người lái còn ổn không?”; OMS hỏi ”trong xe đang có những
+ai, và họ đang ở trạng thái nào?”
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 2 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+DMS và OMS – cùng họ, khác phạm vi
+DMS
+■ Đối tượng: một người – tài xế
+■ Vùng quan tâm: khuôn mặt,
+mắt, đầu
+■ Tín hiệu chính: buồn ngủ, mất
+tập trung, rời mắt khỏi đường
+■ Landmark: chi tiết khuôn mặt
+(chục điểm quanh
+mắt/mũi/miệng)
+OMS
+■ Đối tượng: mọi người trong xe
+■ Vùng quan tâm: toàn thân,
+ghế ngồi, dây an toàn
+■ Tín hiệu chính: ai ngồi đâu, trẻ
+em bị bỏ quên, tư thế nguy
+hiểm
+■ Landmark: pose toàn thân
+(khớp vai, tay, hông – giống
+Ngày 04)
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 3 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Mất tập trung và buồn ngủ: nguyên nhân hàng đầu
+■ Hai nhóm nguyên nhân tai nạn liên quan trực tiếp đến trạng thái người lái:
+distraction (mất tập trung – nhìn điện thoại, chỉnh radio) và drowsiness
+(buồn ngủ, vi giấc ngủ – microsleep).
+■ Cả hai đều không để lại dấu vết cơ học – không giống lỗi phanh hay lốp,
+camera là cách gần như duy nhất để bắt được chúng trước khi tai nạn xảy ra.
+■ Vì vậy EU đã đưa DDAW (Driver Drowsiness and Attention Warning) và
+ADDW (Advanced Driver Distraction Warning) vào diện bắt buộc dần với xe
+mới; tổ chức đánh giá an toàn ô tô Euro NCAP (New Car Assessment
+Programme) cũng đưa giám sát tài xế vào tiêu chí xếp hạng 5 sao.
+Nguồn: xu hướng chung theo lộ trình an toàn ô tô EU/Euro NCAP – chi tiết mốc thời gian thay đổi theo từng bản
+cập nhật, không trích số liệu cụ thể ở đây
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 4 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Vì sao đặc biệt quan trọng trên xe tự lái
+■ Theo thang phân loại tự động hoá SAE J3016 (0 – không tự động, đến 5 – tự
+động hoàn toàn): ở các mức L2/L3 (hỗ trợ lái nâng cao, tự động có điều
+kiện), xe vẫn có thể cần con người tiếp quản (takeover request) khi hệ thống
+gặp tình huống nó không xử lý được.
+■ DMS trả lời câu hỏi sống còn: người lái có đang đủ tỉnh táo và đủ chú ý để tiếp
+quản kịp không? Một hệ thống L3 thương mại (ví dụ Mercedes-Benz Drive
+Pilot) chỉ cho phép rời tay khỏi vô-lăng khi camera xác nhận mắt vẫn mở,
+đầu vẫn hướng về phía trước.
+■ Ở xe robotaxi / không người lái (L4/L5), vai trò chuyển sang OMS: không
+còn ”người lái” để giám sát, nhưng vẫn cần biết hành khách có an toàn
+không – có bị bỏ quên, có gặp sự cố trong xe không.
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 5 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Khái niệm cần nhớ
+Takeover request (TOR)
+Tín hiệu hệ thống tự lái phát ra khi nó yêu cầu người lái quay lại kiểm soát
+xe, thường kèm cảnh báo âm thanh/hình ảnh và một khoảng thời gian đếm
+ngược. DMS là điều kiện tiên quyết: hệ thống không phát TOR một cách an
+toàn nếu không biết người lái có đang sẵn sàng tiếp nhận hay không.
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 6 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Camera đặt ở đâu trong xe
+vô-lăng
+ghế trước ghế sau
+DMS
+khuôn mặt
+OMS
+toàn khoang xe
+Nguồn: sơ đồ minh hoạ vị trí lắp đặt điển hình, không theo tỉ lệ thật
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 7 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Những hành vi DMS cần phát hiện
+■ Drowsiness (buồn ngủ) – qua EAR/PERCLOS kéo dài, ngáp lặp lại, đầu gật.
+■ Distraction (mất tập trung) – qua hướng nhìn rời khỏi vùng đường phía trước
+quá lâu.
+■ Phone use (dùng điện thoại) – kết hợp hướng nhìn cúi xuống với tư thế tay
+(cần thêm keypoint tay/vai, không chỉ khuôn mặt).
+■ Hands-off-wheel (rời tay khỏi vô-lăng) – vắng mặt bàn tay ở vùng vô-lăng
+liên tục, quan trọng nhất khi xe đang ở chế độ L2/L3 và cần người sẵn sàng
+tiếp quản.
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 8 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+OMS quan tâm đến những gì
+■ Ai đang ngồi ở đâu – số người, vị trí từng ghế (dùng box/keypoint như OMS
+phát hiện, tương tự bài toán detection đã học).
+■ Tư thế – ngồi thẳng, cúi người, nằm ngả – ảnh hưởng trực tiếp đến cách túi
+khí cần bung để không gây hại thêm cho người ngồi sai tư thế.
+■ Dây an toàn – xác nhận bằng thị giác thay vì chỉ dựa cảm biến khoá đai cơ
+học (không thể bị ”đánh lừa” bằng cách gài khoá mà không đeo dây).
+■ Trẻ em bị bỏ quên (child presence detection) – một trong những ứng dụng
+OMS được quan tâm nhất, vì hậu quả có thể rất nghiêm trọng nếu bỏ sót.
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 9 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+OMS cho xe chia sẻ và robotaxi
+■ Xe không người lái (L4/L5) không còn ”tài xế” để DMS giám sát – vai trò an
+toàn cabin chuyển hoàn toàn sang OMS.
+■ Ứng dụng: phát hiện hành khách bị bỏ quên đồ đạc hoặc bỏ quên chính
+mình trong xe, giám sát hành vi phá hoại nội thất, xác nhận số ghế trống
+trước khi đón khách tiếp theo.
+■ Với xe chia sẻ (ride-hailing), OMS còn hỗ trợ an toàn cho cả hành khách lẫn
+tài xế – ghi nhận bằng chứng hình ảnh khi có sự cố, theo đúng chính sách
+quyền riêng tư đã cấu hình.
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 10 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Cùng một kỹ thuật keypoint, hai mục tiêu khác nhau
+DMS dùng landmark khuôn mặt để
+hỏi
+”Người lái có đủ tỉnh táo và đủ chú
+ý để điều khiển xe / tiếp quản khi
+cần không?”
+OMS dùng pose toàn thân để hỏi
+”Mọi người trong xe có đang ở đúng
+vị trí, đúng tư thế, an toàn không?”
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 11 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+02Từ Keypoint Đến Hành Vi
+Ngày 04 xây nền 17 điểm – hôm nay dùng nó để đọc ra
+hành vi
+
+Kéo đến trang này để mở note riêng của trang.
+Nhắc lại: keypoint là gì
+■ Một keypoint là một điểm có tên và toạ độ trên một đối tượng có cấu trúc cố
+định – khác với box (chỉ nói ”ở đâu”) hay mask (tô kín từng pixel).
+■ Ngày 04: bộ COCO-17 – 17 điểm thân người (vai, khuỷu, cổ tay, hông, gối, cổ
+chân...), nối với nhau theo một topology cố định.
+■ Mỗi điểm mang theo cờ visibility: v=2 nhìn thấy rõ, v=1 bị che nhưng vẫn đặt
+chấm, v=0 ngoài khung hình, không gán.
+Ngày 04 đã hẹn trước: ”COCO-17 không có bàn tay, không có chi tiết khuôn mặt
+– đó là lý do có thêm face/hand subset.” Hôm nay ta quay lại đúng lời hẹn đó.
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 12 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Nhắc lại: dựng skeleton label trong CVAT
+1. Setup skeleton 2. đặt từng điểm, đặt tên, nối cạnh 3. khoá topology khi tạo task 4. Download
+.SVG để tái dùng cho task sau
+Nguồn: docs.cvat.ai – Annotation with skeletons (labels constructor)
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 13 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Ba trạng thái, đổi tên nhưng cùng ý nghĩa
+■ Dữ liệu DMS/OMS trong CVAT dùng đúng cơ chế Ngày 04 dạy, chỉ đổi tên
+thuộc tính: occluded (0/1) thay cho v=2/1, và outside (0/1) thay cho v=0.
+■ Nguyên tắc giữ nguyên: bị che vẫn phải đặt điểm (chỉ bật cờ occluded=1), chỉ
+bỏ điểm khi nó thật sự ra ngoài khung hình.
+■ Khác biệt duy nhất: đối tượng gán nhãn từ thân người (17 điểm, dùng cho
+OMS) chuyển sang chi tiết khuôn mặt (nhiều chục điểm, dùng cho DMS).
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 14 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Ý tưởng cốt lõi của cả buổi hôm nay
+■ Một khung hình chỉ có 50 điểm có toạ độ (khuôn mặt) hoặc 17 điểm có toạ
+độ (thân người). Không điểm nào trong số đó tự nó nói ”đang buồn ngủ” hay
+”đang với đồ”.
+■ Hành vi lộ ra khi ta nhìn tỉ lệ giữa các điểm (một khung hình) hoặc cách các
+điểm di chuyển (một chuỗi khung hình theo thời gian).
+■ Công thức chung của cả DMS lẫn OMS:
+toạ độ điểm thô → đặc trưng hình học / chuỗi thời gian → phân loại hành vi
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 15 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Đặc trưng đầu tiên cho mắt
+Eye Aspect Ratio (EAR)
+Với 6 điểm quanh viền mắt p1, . . . , p6 (2 góc mắt, 2 điểm mí trên, 2 điểm mí
+dưới):
+EAR = ∥p2 − p6∥ + ∥p3 − p5∥
+2 ∥p1 − p4∥
+Mắt mở: EAR gần như không đổi qua các khung hình. Mắt nhắm: khoảng cách
+mí trên–mí dưới gần bằng 0, EAR tụt xuống gần 0. Một cú chớp mắt bình
+thường chỉ vài khung hình; EAR ở dưới ngưỡng kéo dài mới là dấu hiệu buồn
+ngủ. Nguồn: Soukupová & Čech, Real-Time Eye Blink Detection using Facial Landmarks, 2016
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 16 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Đặc trưng thứ hai: miệng
+Mouth Aspect Ratio (MAR) – phát hiện ngáp
+Cùng công thức với EAR, đổi 6 điểm quanh mắt thành các điểm quanh viền
+môi (bộ 50 điểm hôm nay có sẵn 12 điểm môi ngoài và 8 điểm môi trong).
+MAR tăng vọt và giữ ở mức cao trong khoảng 1–2 giây → ứng viên cho ngáp
+(yawning) – một trong những dấu hiệu sớm nhất của buồn ngủ, thường xuất
+hiện trước khi mắt bắt đầu díu lại.
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 17 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Đặc trưng gộp theo thời gian
+PERCLOS – Percentage of Eyelid Closure
+Không nhìn một khung hình đơn lẻ, mà đếm: trong một cửa sổ thời gian
+(thường 1 phút), bao nhiêu % thời gian mắt nhắm từ 80% trở lên. PERCLOS
+cao (ví dụ vượt ngưỡng ∼15%) là chỉ số buồn ngủ được nghiên cứu và dùng
+phổ biến nhất trong DMS thương mại – vì nó lọc được các cú chớp mắt bình
+thường, chỉ giữ lại xu hướng nhắm kéo dài. Nguồn: Wierwille et al., nghiên cứu PERCLOS
+cho FHWA, 1994
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 18 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+50 điểm khuôn mặt – chia theo vùng
+Vùng Số điểm Dùng để tính
+Lông mày trái / phải 5 + 5 góc mày – tín hiệu ngạc nhiên, cau mày
+Sống mũi 4 mốc tham chiếu, ước lượng góc nghiêng đầu
+Mắt trái / phải 8 + 8 EAR – buồn ngủ, chớp mắt
+Môi ngoài 12 MAR – ngáp, cử động miệng
+Môi trong 8 viền trong khi mở miệng rộng
+Tổng 50
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 19 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Đặc trưng thứ ba: góc đầu và hướng nhìn
+■ Từ vị trí tương đối của mắt – mũi – miệng, ước lượng được góc đầu (head
+pose) theo ba trục: yaw (quay trái/phải), pitch (cúi/ngẩng), roll (nghiêng).
+■ Kết hợp góc đầu với vị trí con ngươi (nếu camera đủ phân giải) → ước lượng
+hướng nhìn (gaze): tài xế đang nhìn đường, nhìn gương, hay nhìn xuống điện
+thoại.
+■ Đây là tín hiệu trực tiếp cho eyes-off-road – rời mắt khỏi đường quá một
+ngưỡng thời gian liên tục.
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 20 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Hai cách đi từ điểm đến hành vi
+Đặc trưng thủ công (rule-based)
+■ Tính EAR/MAR/PERCLOS/góc đầu
+bằng công thức
+■ So với ngưỡng cố định → cảnh báo
+■ Nhanh, chạy được trên chip yếu,
+dễ giải thích
+■ Yếu với hành vi phức tạp (dùng
+điện thoại, uống nước)
+Học từ chuỗi keypoint (learned)
+■ Đưa cả chuỗi toạ độ theo thời
+gian vào một mô hình
+■ Mô hình tự học đặc trưng phân
+biệt hành vi
+■ Nhận diện được hành vi phức tạp,
+nhiều lớp
+■ Cần dữ liệu gán nhãn hành vi lớn
+hơn để huấn luyện
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 21 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Mô hình học sâu trên chuỗi keypoint
+ST-GCN – Spatial-Temporal Graph Convolutional Network
+Coi các keypoint của một khung hình là đỉnh của một đồ thị (cạnh nối theo
+đúng topology skeleton), rồi xếp chuỗi khung hình liên tiếp thành một đồ thị
+không gian–thời gian. Mạng tích chập đồ thị học đồng thời hai chiều: không
+gian (khớp nào liên quan khớp nào) và thời gian (khớp di chuyển ra sao qua
+các khung hình) → đầu ra là nhãn hành vi (ví dụ: đang lái bình thường / đang
+với tay ra sau / đang dùng điện thoại). Nguồn: Yan, Xiong & Lin, Spatial Temporal Graph
+Convolutional Networks for Skeleton-Based Action Recognition, AAAI 2018
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 22 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Từ video đến nhãn hành vi – pipeline thật của ST-GCN
+1. Video đầu vào → ước lượng pose ở mỗi khung hình.
+2. Mỗi khung hình là một đồ thị skeleton; nhiều khung hình liên tiếp xếp thành một khối không gian–thời gian
+(các ”tấm” xám mờ phía sau).
+3. Nhiều lớp ST-GCN học các cụm khớp cùng chuyển động (vùng khoanh đỏ) qua từng lớp.
+4. Lớp cuối cho ra điểm số cho từng lớp hành vi – lớp cao nhất (ở đây: Running) được chọn làm nhãn.
+Nguồn: Yan, Xiong & Lin, AAAI 2018 – Figure 2
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 23 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Một vài kiến trúc nhận diện hành vi từ chuỗi keypoint
+Mô hình Ý tưởng chính Mạnh ở đâu
+LSTM / GRU Chuỗi (x, y) mỗi khớp theo
+thời gian, học bằng mạng
+hồi quy
+Baseline đơn giản, ít
+dữ liệu
+ST-GCN
+(2018)
+Khớp = đỉnh đồ thị theo
+topology skeleton; học cả
+không gian lẫn thời gian
+Phổ biến nhất, bắt
+tốt cấu trúc skeleton
+2s-AGCN
+(2019)
+Hai luồng joint + bone; đồ
+thị được học thích ứng
+Chính xác hơn
+ST-GCN
+PoseC3D
+(2022)
+Đổi keypoint thành
+heatmap giả theo thời gian,
+dùng 3D-CNN
+Bền với lỗi ước lượng
+keypoint
+Yan et al. 2018; Shi et al. (2s-AGCN) CVPR 2019; Duan et al. (PoseC3D) CVPR 2022
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 24 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+PoseC3D – một hướng khác: heatmap thay cho đồ thị
+1. Phát hiện người → ước lượng pose (giống pipeline ST-GCN ở trên).
+2. Mỗi khớp/limb thành một heatmap (đốm sáng mờ) thay vì một điểm toạ độ đơn – bền hơn với sai số ước
+lượng.
+3. Xếp heatmap của mọi khung hình theo trục thời gian → một khối 4 chiều (C × T × H × W).
+4. Đưa khối này qua một mạng 3D-CNN (CNN thường, thêm chiều thời gian) → nhãn hành vi (ở đây: Falling
+Down).
+Nguồn: Duan et al., CVPR 2022 – Figure 2
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 25 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Pipeline nhận diện hành vi từ keypoint
+Video
+camera
+cabin
+Ước lượng
+keypoint
+(mỗi khung
+hình)
+Chuỗi toạ độ
+theo thời
+gian
+Đặc trưng
+(EAR/MAR
+hoặc
+ST-GCN...)
+Nhãn hành vi
+(buồn ngủ,
+mất tập
+trung...)
+Nguồn: sơ đồ khái niệm, không phải kiến trúc của một hệ thống thương mại cụ thể
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 26 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+03DMS: Xây Dựng Dữ Liệu
+50 điểm khuôn mặt – gán thế nào, review thế nào
+
+Kéo đến trang này để mở note riêng của trang.
+Ảnh IR thật: 50 điểm khuôn mặt cho DMS
+■ Camera DMS dùng ánh sáng hồng
+ngoại (IR) – ảnh xám, hoạt động
+ổn định cả ngày lẫn đêm, không
+làm loá mắt tài xế.
+■ Bộ landmark (điểm mốc – cùng
+loại keypoint, đổi tên khi dùng cho
+khuôn mặt) của khoá học: mắt
+2 × 8, lông mày 2 × 5, sống mũi 4,
+môi ngoài 12, môi trong 8 điểm.
+■ Ảnh phải: người đeo kính – gọng
+che một phần viền mắt, vẫn đặt
+điểm và đánh dấu occluded=1 thay
+vì bỏ trống.
+Nguồn: ảnh IR + toạ độ nhãn thật, dữ liệu nội bộ
+khoá học (vinuni_data/DMS)
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 27 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Thách thức khi gán nhãn landmark khuôn mặt
+■ Kính – gọng che một phần viền mắt/mày; ống kính có thể phản chiếu ánh
+sáng IR thành đốm sáng giả.
+■ Góc nghiêng đầu lớn – khi quay đầu gần 90°, một bên mắt gần như biến mất
+khỏi khung hình.
+■ Ánh sáng IR không đều – vùng bị chói hoặc quá tối làm mờ viền mí mắt, môi.
+■ Nguyên tắc xử lý giống hệt Ngày 04: ước lượng theo hình dạng khuôn mặt và
+đặt occluded=1, chỉ bỏ điểm khi nó thật sự ra ngoài khung hình.
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 28 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Trước khi giao guideline gán nhãn DMS
+□✓ Có ảnh mẫu cho cả hai ca: không kính và có kính
+□✓ Định nghĩa rõ khi nào dùng occluded thay vì bỏ điểm
+□✓ Có bảng 50 điểm kèm tên vùng, để annotator không nhầm thứ tự
+□ Chưa thống nhất ngưỡng góc nghiêng đầu để coi là ”quá nghiêng, bỏ qua
+khung hình”
+□ Chưa có annotator thứ hai review các khung hình có occluded=1
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 29 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Pre-label cho landmark: bài học từ Ngày 08
+■ Giống cách AI-assisted labeling đã học ở Ngày 08: chạy một mô hình ước
+lượng landmark khuôn mặt có sẵn trước, annotator chỉ sửa thay vì đặt lại từ
+đầu.
+■ File GT thật của khoá học đặt tên rõ điều này: ^._pseudo (nhãn máy sinh ra
+trước) và ^._GT (bản đã người review, sửa lại thành ground truth).
+■ Lợi ích lớn nhất với 50 điểm/khuôn mặt: pre-label cắt giảm đáng kể thời gian
+so với đặt tay từng điểm – đúng như đường cong chi phí đã thấy ở Ngày 08.
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 30 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+04OMS: Xây Dựng Dữ Liệu
+Pose toàn thân trong một khung hình fisheye, nhiều người
+cùng lúc
+
+Kéo đến trang này để mở note riêng của trang.
+Ảnh thật: OMS phát hiện người trên ghế trẻ em
+■ Camera OMS gắn trần xe, góc
+fisheye (siêu rộng) để bao trọn
+khoang xe – ảnh cong ở rìa,
+đánh đổi chấp nhận được để
+thấy toàn cảnh.
+■ Box đỏ: nhãn person. Điểm
+màu + đường nối: pose toàn
+thân – cùng loại keypoint đã
+học ở Ngày 04, chỉ khác góc
+camera và tư thế.
+■ Từ bộ keypoint này, hệ thống
+suy ra người này đang tương
+tác với ghế trẻ em, không phải
+ngồi yên.
+Nguồn: video hướng dẫn gán nhãn OMS nội bộ
+khoá học
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 31 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Gán nhãn OMS: khác gì với pose một người ở Ngày 04
+■ Ngày 04 gán pose cho một người trong khung (tài xế). OMS phải gán pose
+cho mọi người cùng lúc trong một khung hình – tài xế, hành khách, trẻ em
+trên ghế riêng.
+■ Mỗi người vẫn là một bộ 17 điểm (như Ngày 04) + một box person riêng để
+tách người này khỏi người khác.
+■ Occlusion dày đặc hơn: người bị ghế trước che, trẻ em bị ghế an toàn/đồ
+chơi che gần hết thân – vẫn ước lượng khớp theo hình dạng và đặt
+occluded=1, đúng nguyên tắc đã học.
+■ Nếu dữ liệu là video: mỗi người cần một track ID riêng, giữ nguyên qua các
+khung hình – giống Track Mode đã học ở Ngày 03.
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 32 / 36
+
+Ghi chú của bạn
+
+Bôi đen đoạn trên slide để ghi, hoặc dùng Text · Ảnh.
+Thách thức riêng của OMS: ảnh fisheye
+■ Ống kính fisheye bẻ cong đường thẳng thành đường cong – càng gần rìa ảnh,
+độ méo càng lớn.
+■ Một cánh tay thẳng ngoài đời có thể trông cong ở rìa khung hình; annotator
+đặt điểm theo giải phẫu thật của người, không theo đường nhìn thấy trên ảnh.
+■ Vì độ méo không đều giữa tâm và rìa ảnh, nội suy tuyến tính giữa hai
+keyframe cách xa nhau dễ làm khớp ”cắt góc” qua vùng méo – sai với chuyển
+động thật.
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 33 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+05Thực Hành
+Từ toạ độ thật sang một cảnh báo có ý nghĩa
+
+Kéo đến trang này để mở note riêng của trang.
+Lab #10
+LAB #10
+Mục tiêu: Dùng bộ toạ độ 50 điểm khuôn mặt thật (mẫu không kính + có kính)
+để: (a) viết hàm tính EAR cho mắt trái/phải trên một chuỗi khung hình, (b) vẽ
+biểu đồ EAR theo thời gian và xác định ngưỡng nhắm mắt, (c) so sánh kết quả
+giữa hai bộ dữ liệu và ghi lại các trường hợp gọng kính làm sai lệch phép đo.
+Deliverable: Notebook tính EAR + biểu đồ theo thời gian + ghi chú các ca lỗi
+do kính/occlusion
+Thời gian: 60 phút
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 34 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Tổng kết — Key Takeaways
+Những ý chính cần nhớ trước khi sang bài tiếp theo
+1 DMS nhìn một khuôn mặt để hỏi ”còn tỉnh táo không?”; OMS nhìn cả khoang xe để hỏi
+”mọi người có an toàn không?”.
+2 Toạ độ thô không phải hành vi – cần tính đặc trưng (EAR, MAR, PERCLOS, góc đầu)
+hoặc học sâu trên skeleton (ST-GCN...) mới ra được nhãn hành vi.
+3
+50 điểm khuôn mặt (DMS) hay nhiều bộ 17 điểm cùng lúc (OMS) đều dùng chung
+nguyên tắc 3 trạng thái của Ngày 04: bị che vẫn đặt điểm, chỉ bỏ khi ra ngoài khung
+hình.
+4 DMS/OMS trên xe tự lái là điều kiện an toàn: quyết định khi nào tự động hoá, khi nào
+trả quyền lại cho con người.
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 34 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Tiếp theo & Bài tập
+Bài tiếp theo
+Ngày 11 – Kiểm định chất lượng
+nhãn hành vi
+“17 hay 50 điểm đúng vị trí chưa
+chắc cho nhãn hành vi đúng – một
+khung hình sai một điểm có thể
+lật ngược cả nhãn ”tỉnh táo” thành
+”buồn ngủ”.”
+Bài tập về nhà
+■ Ôn lại Cohen’s κ / Fleiss’ κ đã
+học ở Ngày 06
+■ Mang theo notebook tính EAR
+đã làm ở lab hôm nay
+■ Nghĩ trước: annotator nên
+xem một khung hình hay cả
+đoạn video khi gán nhãn hành
+vi?
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 35 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Tài liệu tham khảo
+1. T. Soukupová, J. Čech, Real-Time Eye Blink Detection using Facial Landmarks, CVWW 2016.
+2. W. W. Wierwille et al., Research on Vehicle-Based Driver Status/Performance Monitoring,
+FHWA/NHTSA, 1994 (nguồn khái niệm PERCLOS).
+3. S. Yan, Y. Xiong, D. Lin, Spatial Temporal Graph Convolutional Networks for Skeleton-Based
+Action Recognition (ST-GCN), AAAI 2018.
+4. L. Shi, Y. Zhang, J. Cheng, H. Lu, Two-Stream Adaptive Graph Convolutional Networks for
+Skeleton-Based Action Recognition (2s-AGCN), CVPR 2019.
+5. H. Duan et al., Revisiting Skeleton-based Action Recognition (PoseC3D), CVPR 2022.
+6. J. D. Ortega et al., DMD: A Large-Scale Multi-Modal Driver Monitoring Dataset, ECCV
+Workshops 2020. dmd.vicomtech.org
+7. Regulation (EU) 2019/2144 (General Safety Regulation) – yêu cầu Driver Drowsiness and
+Attention Warning (DDAW) và Advanced Driver Distraction Warning (ADDW) trên xe mới tại
+EU.
+8. Euro NCAP, Safety Assist – Driver Monitoring, tiêu chí đánh giá cập nhật theo từng roadmap.
+euroncap.com
+9. CVAT documentation – Annotation with skeletons. docs.cvat.ai
+Giảng viên (VinUni) AICB · Ngày 10 Data Track 36 / 36
+
+Kéo đến trang này để mở note riêng của trang.
+Hỏi & Đáp
+Câu hỏi mở: nếu một chiếc xe robotaxi không còn
+”tài xế” để DMS giám sát, ai chịu trách nhiệm khi
+OMS bỏ sót một hành khách gặp sự cố trong xe?
+
+Kéo đến trang này để mở note riêng của trang.
+
+Kéo đến trang này để mở note riêng của trang.
+Bài trước
+Hoàn thành buổi học

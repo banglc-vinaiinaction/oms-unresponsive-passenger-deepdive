@@ -1,0 +1,74 @@
+VERSION ""
+
+NS_ :
+    NS_DESC_
+    CM_
+    BA_DEF_
+    BA_
+    VAL_
+    CAT_DEF_
+    CAT_
+    FILTER
+    BA_DEF_DEF_
+    EV_DATA_
+    ENVVAR_DATA_
+    SGTYPE_
+    SGTYPE_VAL_
+    BA_DEF_SGTYPE_
+    BA_SGTYPE_
+    SIG_TYPE_REF_
+    VAL_TABLE_
+    SIG_GROUP_
+    SIG_VALTYPE_
+    SIGTYPE_VALTYPE_
+    BO_TX_BU_
+    BA_DEF_REL_
+    BA_REL_
+    BA_DEF_DEF_REL_
+    BU_SG_REL_
+    BU_EV_REL_
+    BU_VD_REL_
+    NODES_REL_
+    OEM_DEF_
+
+BS_:
+
+BU_: DMS_ECU OMS_ECU ADAS_GATEWAY ESP_ECU EPS_ECU HMI_CLUSTER TCU_ECU
+
+BO_ 240 DIP_InterventionCommand: 8 ADAS_GATEWAY
+ SG_ DIP_InterventionLevel : 0|3@1+ (1,0) [0|7] "" HMI_CLUSTER,ESP_ECU,EPS_ECU,TCU_ECU
+ SG_ DIP_VisualAlertReq : 3|2@1+ (1,0) [0|3] "" HMI_CLUSTER
+ SG_ DIP_AcousticAlertReq : 5|2@1+ (1,0) [0|3] "" HMI_CLUSTER
+ SG_ DIP_HapticWheelReq : 7|1@1+ (1,0) [0|1] "" EPS_ECU
+ SG_ DIP_SeatbeltTugReq : 8|1@1+ (1,0) [0|1] "" ADAS_GATEWAY
+ SG_ DIP_BrakeJerkReq : 9|1@1+ (1,0) [0|1] "" ESP_ECU
+ SG_ DIP_HazardFlashReq : 10|1@1+ (1,0) [0|1] "" ADAS_GATEWAY
+ SG_ DIP_MRM_TakeoverActive : 11|1@1+ (1,0) [0|1] "" ESP_ECU,EPS_ECU
+ SG_ DIP_eCallTriggerReq : 12|1@1+ (1,0) [0|1] "" TCU_ECU
+ SG_ DIP_TargetDecel_mps2 : 16|8@1+ (0.05,0) [0|10] "m/s2" ESP_ECU
+ SG_ DIP_AliveCounter : 48|4@1+ (1,0) [0|15] "" ESP_ECU,HMI_CLUSTER
+ SG_ DIP_CRC8 : 56|8@1+ (1,0) [0|255] "" ESP_ECU,HMI_CLUSTER
+
+BO_ 288 DMS_DriverStatus: 8 DMS_ECU
+ SG_ DMS_GazeZone : 0|4@1+ (1,0) [0|15] "" ADAS_GATEWAY
+ SG_ DMS_AttentionState : 4|3@1+ (1,0) [0|7] "" ADAS_GATEWAY
+ SG_ DMS_DrowsinessLevel : 7|3@1+ (1,0) [0|7] "" ADAS_GATEWAY
+ SG_ DMS_HandsOnWheel : 10|1@1+ (1,0) [0|1] "" ADAS_GATEWAY
+ SG_ DMS_EyeClosureDuration_ms : 16|16@1+ (1,0) [0|65535] "ms" ADAS_GATEWAY
+ SG_ DMS_PerclosPercentage : 32|8@1+ (0.5,0) [0|100] "%" ADAS_GATEWAY
+ SG_ DMS_AliveCounter : 48|4@1+ (1,0) [0|15] "" ADAS_GATEWAY
+ SG_ DMS_CRC8 : 56|8@1+ (1,0) [0|255] "" ADAS_GATEWAY
+
+BO_ 304 OMS_CabinStatus: 8 OMS_ECU
+ SG_ OMS_DriverPresent : 0|1@1+ (1,0) [0|1] "" ADAS_GATEWAY
+ SG_ OMS_DriverBeltFastened : 1|1@1+ (1,0) [0|1] "" ADAS_GATEWAY
+ SG_ OMS_PassengerCount : 2|4@1+ (1,0) [0|15] "" ADAS_GATEWAY
+ SG_ OMS_ChildPresent : 6|1@1+ (1,0) [0|1] "" ADAS_GATEWAY
+ SG_ OMS_AliveCounter : 48|4@1+ (1,0) [0|15] "" ADAS_GATEWAY
+ SG_ OMS_CRC8 : 56|8@1+ (1,0) [0|255] "" ADAS_GATEWAY
+
+VAL_ 240 DIP_InterventionLevel 0 "LEVEL_0_PASSIVE" 1 "LEVEL_1_VISUAL" 2 "LEVEL_2_ACOUSTIC" 3 "LEVEL_3_HAPTIC" 4 "LEVEL_4_BRAKE_JERK" 5 "LEVEL_5_MRM_STOP" ;
+VAL_ 288 DMS_AttentionState 0 "ATTENTIVE" 1 "DISTRACTED_LOW" 2 "DISTRACTED_HIGH" 3 "DROWSY" 4 "MICROSLEEP" 5 "INCAPACITATED" ;
+VAL_ 288 DMS_GazeZone 0 "ROAD_AHEAD" 1 "LEFT_MIRROR" 2 "RIGHT_MIRROR" 3 "CLUSTER" 4 "INFOTAINMENT" 5 "PHONE_DOWN" 6 "EYES_CLOSED" 7 "UNKNOWN" ;
+VAL_ 304 OMS_DriverPresent 0 "ABSENT" 1 "PRESENT" ;
+VAL_ 304 OMS_DriverBeltFastened 0 "UNBUCKLED" 1 "BUCKLED" ;

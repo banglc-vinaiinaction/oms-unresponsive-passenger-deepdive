@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS Cabin Monitoring — Typical vs Edge Cases</title>
+<style>
+  :root {
+    --bg: #090d16;
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text-primary: #f0f4f8;
+    --text-secondary: #94a3b8;
+    --accent: #38bdf8;       /* Tech blue */
+    --success: #34d399;      /* Green for typical */
+    --warning: #fbbf24;      /* Amber */
+    --danger: #f87171;       /* Red for edge cases */
+    --purple: #c084fc;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    line-height: 1.45;
+  }
+
+  /* 16:9 Master Single Slide Container */
+  .slide-container {
+    width: 100%;
+    max-width: 1440px;
+    background: radial-gradient(circle at 50% 0%, #17223b 0%, #090d16 80%);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 28px 36px;
+    box-shadow: 0 25px 60px -15px rgba(0,0,0,0.7);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 16px;
+  }
+  .title-group h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-dms {
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .context-tag {
+    font-size: 12px;
+    background: rgba(255,255,255,0.06);
+    color: #cbd5e1;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* Top Pipeline (Visual Flow) */
+  .flow-banner {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+  .flow-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+  }
+  .flow-step:not(:last-child)::after {
+    content: "→";
+    position: absolute;
+    right: -8px;
+    color: var(--text-secondary);
+    font-size: 16px;
+  }
+  .step-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .step-info .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .step-info .desc {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e2e8f0;
+  }
+
+  /* Two Column Main Body */
+  .grid-comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .col-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .col-card.typical {
+    border-top: 4px solid var(--success);
+  }
+  .col-card.edge {
+    border-top: 4px solid var(--danger);
+  }
+
+  .col-title {
+    font-size: 17px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .col-title .tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .col-card.typical .tag {
+    background: rgba(52, 211, 153, 0.15);
+    color: var(--success);
+  }
+  .col-card.edge .tag {
+    background: rgba(248, 113, 113, 0.15);
+    color: var(--danger);
+  }
+
+  /* Item rows */
+  .case-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .case-item {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .case-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+    color: #f1f5f9;
+  }
+  .case-status {
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .status-ok { color: var(--success); }
+  .status-fail { color: var(--danger); }
+  .case-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+  .case-risk {
+    font-size: 11px;
+    color: #fca5a5;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* Bottom Takeaway / Evaluation of MMPose */
+  .evaluation-footer {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid var(--card-border);
+    border-left: 4px solid var(--purple);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 20px;
+    align-items: center;
+  }
+  .eval-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--purple);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .eval-header p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+  .eval-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    font-size: 12.5px;
+  }
+  .eval-box strong {
+    color: #f8fafc;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .eval-box span {
+    color: #94a3b8;
+  }
+
+  @media (max-width: 1024px) {
+    .grid-comparison { grid-template-columns: 1fr; }
+    .flow-banner { grid-template-columns: 1fr 1fr; }
+    .evaluation-footer { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="slide-container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="title-group">
+      <h1>Hệ Thống Giám Sát Người Lái (DMS) <span class="badge-dms">Cabin AI</span></h1>
+      <p class="subtitle">Từ quan sát hình ảnh đến quyết định an toàn — Thực tế vận hành và những điểm mù chết người</p>
+    </div>
+    <div class="context-tag">
+      Euro NCAP 2026 · ISO 26262 · An Toàn Ô Tô Thực Tế
+    </div>
+  </div>
+
+  <!-- Flow Banner: How it actually works without jargon -->
+  <div class="flow-banner">
+    <div class="flow-step">
+      <div class="step-icon">📷</div>
+      <div class="step-info">
+        <div class="label">Bước 1: Thu Nhận</div>
+        <div class="desc">Camera Hồng Ngoại (NIR)</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-icon">📍</div>
+      <div class="step-info">
+        <div class="label">Bước 2: Định Vị (RTMPose)</div>
+        <div class="desc">Chấm Mốc Mắt · Mũi · Miệng · Tay</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-icon">⏱️</div>
+      <div class="step-info">
+        <div class="label">Bước 3: Suy Diễn Thời Gian</div>
+        <div class="desc">Chớp Mắt vs Ngủ Gật vs Cúi Mặt</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="step-icon">🛡️</div>
+      <div class="step-info">
+        <div class="label">Bước 4: Can Thiệp</div>
+        <div class="desc">Báo Động → Thắt Đai → Phanh Tự Động</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison Section: Typical vs Edge Cases -->
+  <div class="grid-comparison">
+
+    <!-- Column 1: Typical Cases -->
+    <div class="col-card typical">
+      <div class="col-title">
+        <span>🟢 Typical Cases (Điều Kiện Chuẩn — AI Hoạt Động Mượt)</span>
+        <span class="tag">95% Thời Gian Lái Xe</span>
+      </div>
+      <div class="case-list">
+
+        <div class="case-item">
+          <div class="case-header">
+            <span>1. Lái xe tập trung bình thường</span>
+            <span class="case-status status-ok">✓ Hoàn hảo</span>
+          </div>
+          <div class="case-desc">
+            Mặt hướng thẳng kính chắn gió, mắt mở to, chớp mắt sinh lý tự nhiên (~0.2 giây). AI xác nhận tài xế tỉnh táo, hệ thống ở chế độ giám sát ngầm, không phát cảnh báo thừa.
+          </div>
+        </div>
+
+        <div class="case-item">
+          <div class="case-header">
+            <span>2. Cúi nhìn điện thoại / Chỉnh màn hình giải trí</span>
+            <span class="case-status status-ok">✓ Bắt rất nhạy</span>
+          </div>
+          <div class="case-desc">
+            Góc đầu cúi xuống kết hợp mắt nhìn rời khỏi mặt đường liên tục > 2.0 giây. Hệ thống ngay lập tức phát hình ảnh cảnh báo màu vàng trên kính lái (HUD) nhắc nhìn đường.
+          </div>
+        </div>
+
+        <div class="case-item">
+          <div class="case-header">
+            <span>3. Ngáp kéo dài do mệt mỏi</span>
+            <span class="case-status status-ok">✓ Nhận diện sớm</span>
+          </div>
+          <div class="case-desc">
+            Khuôn miệng mở rộng liên tục 1.5 – 3 giây. AI ghi nhận dấu hiệu mệt mỏi giai đoạn đầu trước khi mí mắt kịp sụp xuống, đưa ra gợi ý dừng nghỉ dừng chân.
+          </div>
+        </div>
+
+        <div class="case-item">
+          <div class="case-header">
+            <span>4. Ngủ gật tức thời (Microsleep)</span>
+            <span class="case-status status-ok">✓ Cứu mạng</span>
+          </div>
+          <div class="case-desc">
+            Mắt nhắm chặt kéo dài trên 1.5 – 2.0 giây ở dải tốc độ 60 km/h. Hệ thống lập tức kích hoạt còi báo động, rung vô-lăng và giật nhẹ đai an toàn để đánh thức.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Column 2: Edge Cases -->
+    <div class="col-card edge">
+      <div class="col-title">
+        <span>🔴 Edge Cases Thực Tế (Không Chỉ Lỗi Cảm Biến — Cái Bẫy Đời Thật)</span>
+        <span class="tag">5% Tình Huống Nhưng Gây Tai Nạn</span>
+      </div>
+      <div class="case-list">
+
+        <div class="case-item">
+          <div class="case-header">
+            <span>1. Phụ kiện: Kính râm phân cực & Khẩu trang / Khăn trùm</span>
+            <span class="case-status status-fail">⚠️ Lóa sáng / Che khuất</span>
+          </div>
+          <div class="case-desc">
+            Tròng kính râm phản xạ lại tia hồng ngoại (IR reflection) biến mắt thành đốm đen/lóa trắng. Khẩu trang che mất miệng và cằm khiến AI mù hoàn toàn mốc ngáp và góc cúi đầu.
+          </div>
+          <div class="case-risk">Hậu quả: Báo động nhầm liên tục làm tài xế bực bội tắt hệ thống, hoặc bỏ sót ngủ gật.</div>
+        </div>
+
+        <div class="case-item">
+          <div class="case-header">
+            <span>2. Nhân trắc học: Mắt một mí & Nếp nhăn người cao tuổi</span>
+            <span class="case-status status-fail">⚠️ Lỗi thiên lệch mẫu (Bias)</span>
+          </div>
+          <div class="case-desc">
+            Người mắt một mí tự nhiên có độ mở mắt nhỏ; người lớn tuổi bị sụp mí. Thuật toán đo tỷ lệ mắt (EAR) nếu dùng một ngưỡng cứng sẽ phán đoán họ luôn trong trạng thái "buồn ngủ".
+          </div>
+          <div class="case-risk">Hậu quả: Sai lệch báo động do không cá nhân hoá ngưỡng sinh trắc học theo từng người.</div>
+        </div>
+
+        <div class="case-item">
+          <div class="case-header">
+            <span>3. Vật cản cơ học: Vành vô-lăng & Uống nước / Gãi mặt</span>
+            <span class="case-status status-fail">⚠️ Mất dấu tức thời</span>
+          </div>
+          <div class="case-desc">
+            Tài xế nâng chai nước uống hoặc đưa tay gãi đầu che khuất 70% khuôn mặt trong 3 giây. Vành vô-lăng che cằm khi quay góc cua lớn khiến mô hình phát hiện khuôn mặt bị trượt khung (drop box).
+          </div>
+          <div class="case-risk">Hậu quả: Mất dấu đột ngột làm bộ phân loại hiểu nhầm thành tài xế ngất xỉu/rời ghế lái.</div>
+        </div>
+
+        <div class="case-item">
+          <div class="case-header">
+            <span>4. Rung động xe: Đường gồ ghề dằn xóc & Đèn hầm nhấp nháy</span>
+            <span class="case-status status-fail">⚠️ Nhiễu động học & Ánh sáng</span>
+          </div>
+          <div class="case-desc">
+            Xe chạy qua gờ giảm tốc hoặc off-road khiến đầu tài xế nảy giật liên tục (nhầm với gật đầu ngủ gật). Đi qua đường hầm với đèn trần nhấp nháy làm độ sáng thay đổi cực đoan gây rung toạ độ điểm.
+          </div>
+          <div class="case-risk">Hậu quả: Nhảy điểm toạ độ giả lập khiến PERCLOS vọt cao ngoài ý muốn.</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Evaluation: Is MMPose / RTMPose relevant in real life? -->
+  <div class="evaluation-footer">
+    <div class="eval-header">
+      <h3>Đánh Giá Thực Tế Về MMPose / RTMPose</h3>
+      <p>Có dùng được trên ô tô thương mại không?</p>
+    </div>
+    <div class="eval-content">
+      <div class="eval-box">
+        <strong>🟢 Giá Trị Thật (Ở Giai Đoạn Thử Nghiệm):</strong>
+        <span>RTMPose rất xuất sắc để nghiên cứu, chạy thử thuật toán trên máy tính nhờ tốc độ cao và hỗ trợ đa dạng (người, mặt, tay). Xuất sang TensorRT/ONNX mượt mà.</span>
+      </div>
+      <div class="eval-box">
+        <strong>🔴 Hạn Chế Khi Lên Xe Thương Mại (ASIL-B):</strong>
+        <span>MMPose thuần là thư viện nghiên cứu (Python/PyTorch). Nó thiếu hoàn toàn: dữ liệu hồng ngoại cabin xe, bộ lọc rung thời gian (Kalman), và tiêu chuẩn an toàn phần mềm ô tô. Không thể bê nguyên xi lên xe thật.</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

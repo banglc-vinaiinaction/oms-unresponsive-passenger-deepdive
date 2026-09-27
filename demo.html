@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OMS Robotaxi Deep Dive: Xử Lý Khách Bất Tỉnh</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --bg: #090d16; --panel: #111827; --border: #1f2937; --text: #f3f4f6;
+    --sub: #9ca3af; --accent: #f59e0b; --green: #10b981; --blue: #38bdf8;
+    --danger: #ef4444; --purple: #a855f7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+  
+  header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+  h1 { font-size: 1.5rem; color: var(--danger); display: flex; align-items: center; gap: 10px; }
+  .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+  .badge-oms { background: rgba(56,189,248,0.2); color: var(--blue); border: 1px solid var(--blue); }
+
+  .layout { display: grid; grid-template-columns: 1fr 380px; gap: 20px; max-width: 1200px; margin: 0 auto; }
+
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+  .card-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--blue); display: flex; align-items: center; gap: 8px; }
+
+  /* 4-tier intervention status */
+  .level-box { padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border); transition: all 0.3s; }
+  .level-1 { background: rgba(56,189,248,0.15); border-color: var(--blue); }
+  .level-2 { background: rgba(16,185,129,0.15); border-color: var(--green); }
+  .level-3 { background: rgba(245,158,11,0.15); border-color: var(--accent); }
+  .level-4 { background: rgba(239,68,68,0.25); border-color: var(--danger); box-shadow: 0 0 15px rgba(239,68,68,0.3); }
+
+  .level-title { font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
+  .level-desc { font-size: 0.78rem; color: var(--text); margin-top: 4px; }
+
+  .hmi-screen { background: #000; border: 2px solid #ef4444; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 0.85rem; color: #ef4444; text-align: center; font-weight: bold; }
+  .can-terminal { background: #050811; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; font-family: monospace; font-size: 0.75rem; color: #10b981; }
+</style>
+</head>
+<body>
+
+<header style="max-width: 1200px; margin: 0 auto 20px;">
+  <h1><i class="fa fa-truck-medical"></i> OMS Deep Dive: Xử Lý Khách Bất Tỉnh L4</h1>
+  <div>
+    <span class="badge badge-oms">RTMPose Fusion</span>
+    <a href="slides.html" style="color:var(--accent); text-decoration:none; margin-left:15px; font-weight:700;"><i class="fa fa-slideshare"></i> Xem Slides</a>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- Left column: Visualizer & Math -->
+  <div>
+    <div class="card" style="padding:0; overflow:hidden;">
+      <div class="card-title" style="padding:16px; margin-bottom:0; border-bottom:1px solid var(--border);">
+        <i class="fa fa-users-viewfinder"></i> Nhận Diện Face + Pose (Live Feed)
+      </div>
+      <div style="display:flex;">
+        <!-- Body -->
+        <div style="flex:1; border-right:1px solid var(--border); padding:16px;">
+           <canvas id="cabinCanvas" width="480" height="360" style="width:100%; height:auto; background:#0c121e; border-radius:10px; border:1px solid #1e293b;"></canvas>
+        </div>
+        <!-- Face & Gauges -->
+        <div style="width:240px; padding:16px; background:#0f172a;">
+          <canvas id="faceCanvas" width="160" height="160" style="background:#000; border:1px solid #334155; border-radius:8px; display:block; margin: 0 auto;"></canvas>
+          <div style="margin-top:20px; font-size:0.75rem; color:var(--sub);">
+            <!-- Math Metrics -->
+            <div style="margin-bottom:12px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Độ mở mắt (EAR)</span><strong style="color:var(--danger)">0.05</strong></div>
+              <div style="width:100%; height:6px; background:#1e293b; border-radius:3px;"><div style="width:15%; height:100%; background:var(--danger);"></div></div>
+            </div>
+            <div style="margin-bottom:12px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Góc thân (Trunk θ)</span><strong style="color:var(--danger)">41.9°</strong></div>
+              <div style="width:100%; height:6px; background:#1e293b; border-radius:3px;"><div style="width:90%; height:100%; background:var(--danger);"></div></div>
+            </div>
+            <div style="margin-bottom:12px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>T/g bất động</span><strong style="color:var(--danger)">220 giây</strong></div>
+              <div style="width:100%; height:6px; background:#1e293b; border-radius:3px;"><div style="width:100%; height:100%; background:var(--danger);"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="fa fa-calculator"></i> Bằng Chứng Toán Học (Thuật Toán OMS)</div>
+      <div style="display:flex; gap: 15px;">
+        <div style="flex:1; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; font-family:monospace; font-size:0.8rem; color:#cbd5e1;">
+          <span style="color:#a855f7;">// 1. Kiểm tra lịm đi (Bất tỉnh)</span><br>
+          EAR = (||p2-p6|| + ||p3-p5||) / (2 * ||p1-p4||)<br>
+          <span style="color:#ef4444">if (EAR < 0.2) and (Trunk_Angle > 40°) {<br>
+          &nbsp;&nbsp;start_timer()<br>
+          }</span>
+        </div>
+        <div style="flex:1; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; font-family:monospace; font-size:0.8rem; color:#cbd5e1;">
+          <span style="color:#38bdf8;">// 2. Kích hoạt Cấp Cứu 115</span><br>
+          T_still = current_time() - timer_start<br>
+          <span style="color:#ef4444">if (T_still > 180.0) {<br>
+          &nbsp;&nbsp;trigger_level_4_emergency()<br>
+          &nbsp;&nbsp;unlock_doors()<br>
+          }</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right column: Actuation -->
+  <div>
+    <div class="card">
+      <div class="card-title"><i class="fa fa-sitemap"></i> Chuỗi Leo Thang 4 Cấp Độ</div>
+
+      <div class="level-box level-1">
+        <div class="level-title" style="color:var(--blue)"><i class="fa fa-car"></i> CẤP 1: CABIN</div>
+        <div class="level-desc">Đèn trần bật sáng cực đại 100%<br>Còi báo thức âm lượng lớn réo liên tục</div>
+      </div>
+      <div class="level-box level-2">
+        <div class="level-title" style="color:var(--green)"><i class="fa fa-bullhorn"></i> CẤP 2: NGƯỜI ĐI ĐƯỜNG</div>
+        <div class="level-desc">Màn hình kính ngoài: 'CẦN TRỢ GIÚP Y TẾ'<br>Loa ngoài xe phát thanh nhờ giúp đỡ</div>
+      </div>
+      <div class="level-box level-3">
+        <div class="level-title" style="color:var(--accent)"><i class="fa fa-headset"></i> CẤP 3: TỔNG ĐÀI ĐỘI XE</div>
+        <div class="level-desc">Tele-op mở đàm thoại 2 chiều vào xe<br>Điều hướng xe cơ động Field Support Van</div>
+      </div>
+      <div class="level-box level-4">
+        <div class="level-title" style="color:var(--danger)"><i class="fa fa-phone-volume"></i> CẤP 4: CỨU THƯƠNG 115</div>
+        <div class="level-desc">Truyền eCall 115 dữ liệu nhịp thở + GPS<br>Tự động mở khóa cửa cho y tế tiếp cận</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="fa fa-desktop"></i> Màn Hình Cabin (HMI)</div>
+      <div class="hmi-screen">
+        [KHẨN CẤP Y TẾ: ĐANG GỌI 115]<br><br>
+        Hành khách không có phản ứng sau 3 phút.<br>
+        Hệ thống đang điều xe cấp cứu.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="fa fa-network-wired"></i> CAN Bus Telemetry (0x0F0 / 0x130)</div>
+      <div class="can-terminal">
+        [CAN 0x0F0 DIP_CMD] : 4C 1C 1E 00 00 00 06 C2<br>
+        [CAN 0x130 OMS_STS] : 07 00 00 00 00 00 06 CA<br>
+        &bull; LEVEL_4_EMERGENCY : TRUE<br>
+        &bull; ECALL_TRIGGER     : TRUE<br>
+        &bull; REMOTE_UNLOCK     : TRUE (CRC8 OK)
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Draw logic for the Unresponsive Passenger
+const ctx = document.getElementById("cabinCanvas").getContext("2d");
+const fCtx = document.getElementById("faceCanvas").getContext("2d");
+
+// Draw Slumped Body
+ctx.fillStyle = "#0f172a";
+ctx.roundRect(170, 180, 140, 110, 10);
+ctx.fill();
+ctx.strokeStyle = "#334155"; ctx.lineWidth = 1.5; ctx.stroke();
+
+let cx = 240, cy = 250;
+ctx.strokeStyle = "#ef4444"; ctx.fillStyle = "#ef4444"; ctx.lineWidth = 2.5;
+ctx.beginPath(); ctx.arc(cx + 40, cy - 10, 12, 0, Math.PI * 2); ctx.stroke(); // Head leaning right
+ctx.beginPath(); ctx.moveTo(cx + 40, cy + 2); ctx.lineTo(cx, cy + 30); ctx.stroke(); // Slumped spine
+ctx.beginPath(); ctx.moveTo(cx + 25, cy + 12); ctx.lineTo(cx + 10, cy + 40); ctx.stroke(); // Arm dropping
+ctx.beginPath(); ctx.moveTo(cx - 10, cy + 30); ctx.lineTo(cx - 15, cy + 70); ctx.stroke(); // Legs
+
+// Draw Passed Out Face (Eyes closed, mouth open, head tilt)
+fCtx.strokeStyle = "#334155"; fCtx.lineWidth = 1; fCtx.beginPath(); fCtx.arc(80, 80, 65, 0, Math.PI*2); fCtx.stroke();
+let headTilt = 0.45;
+let pts = [];
+function addPt(x, y) {
+  let dx = x - 80, dy = y - 80;
+  let rx = dx * Math.cos(headTilt) - dy * Math.sin(headTilt);
+  let ry = dx * Math.sin(headTilt) + dy * Math.cos(headTilt);
+  pts.push([80 + rx, 80 + ry + 15]);
+}
+addPt(35,45); addPt(45,40); addPt(55,40); addPt(65,42); addPt(72,45); // L Brow
+addPt(88,45); addPt(95,42); addPt(105,40); addPt(115,40); addPt(125,45); // R Brow
+addPt(80,50); addPt(80,60); addPt(80,70); addPt(80,82); // Nose
+let leY = 65, leH = 0.5; addPt(42,leY); addPt(48,leY-leH); addPt(55,leY-leH); addPt(62,leY-leH); addPt(68,leY); addPt(62,leY+leH); addPt(55,leY+leH); addPt(48,leY+leH); // L Eye closed
+let reY = 65, reH = 0.5; addPt(118,reY); addPt(112,reY-reH); addPt(105,reY-reH); addPt(98,reY-reH); addPt(92,reY); addPt(98,reY+reH); addPt(105,reY+reH); addPt(112,reY+reH); // R Eye closed
+let lipY = 110, mw = 22, mh = 12; // Mouth open
+addPt(80-mw,lipY); addPt(80-mw/2,lipY-mh/2); addPt(80,lipY-mh); addPt(80+mw/2,lipY-mh/2); addPt(80+mw,lipY);
+addPt(80+mw/2,lipY+mh/2); addPt(80,lipY+mh); addPt(80-mw/2,lipY+mh/2);
+addPt(80-mw*0.8,lipY); addPt(80,lipY-mh*0.8); addPt(80+mw*0.8,lipY); addPt(80,lipY+mh*0.8);
+
+function drawPath(points, color, closed=false) {
+  fCtx.strokeStyle = color; fCtx.lineWidth = 1.5; fCtx.beginPath();
+  fCtx.moveTo(points[0][0], points[0][1]);
+  for(let i=1; i<points.length; i++) fCtx.lineTo(points[i][0], points[i][1]);
+  if (closed) fCtx.closePath();
+  fCtx.stroke();
+}
+drawPath(pts.slice(0, 5), "#ef4444"); drawPath(pts.slice(5, 10), "#ef4444");
+drawPath(pts.slice(10, 14), "#ef4444");
+drawPath(pts.slice(14, 22), "#ef4444", true); drawPath(pts.slice(22, 30), "#ef4444", true);
+drawPath(pts.slice(30, 38), "#ef4444", true); drawPath(pts.slice(38, 42), "#ef4444", true);
+</script>
+</body>
+</html>

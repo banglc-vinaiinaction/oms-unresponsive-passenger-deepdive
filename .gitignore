@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+external/mmpose
+2303.07399v2.pdf
