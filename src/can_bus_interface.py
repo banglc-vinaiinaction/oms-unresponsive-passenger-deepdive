@@ -90,6 +90,11 @@ class CANBusInterface:
 
     def _enable_virtual_bus(self, reason: str):
         self.is_virtual = True
+        if self.sock:
+            try:
+                self.sock.close()
+            except Exception:
+                pass
         self.sock = None
 
     def send(self, arbitration_id: int, payload: bytes) -> bool:

@@ -13,6 +13,7 @@
     --accent2: #10b981;
     --accent3: #38bdf8;
     --danger: #ef4444;
+    --sub: #94a3b8;
   }
   .reveal { font-size: 26px; font-family: -apple-system, sans-serif; }
   .reveal h1 { font-size: 1.5em; color: var(--danger); font-weight: 800; text-transform: none; }
@@ -212,6 +213,121 @@
       <div class="card" style="border-top: 3px solid var(--danger);">
         <div class="card-title" style="color:var(--danger);"><i class="fa fa-phone-volume"></i> Cấp 4: Gọi Cấp cứu 115 (180s)</div>
         <p style="font-size:0.7em; color:#cbd5e1;">Tự động eCall 115, truyền vị trí GPS và nhịp thở. <strong>Tự động mở khóa cửa (Remote Unlock)</strong> cho y tế vào.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 8: RTMPose in In-Cabin OMS -->
+  <section>
+    <h2>7 · RTMPose &amp; Vai Trò Trọng Yếu Với In-Cabin OMS Robotaxi</h2>
+    <p class="tagline">SOTA Real-Time Pose Estimation (OpenMMLab) — Xương sống định vị tư thế khoang xe L4</p>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <!-- Card 1: What RTMPose Is -->
+      <div class="card" style="border-top: 3px solid var(--accent3); padding: 10px 12px; margin-bottom: 0;">
+        <div class="card-title" style="color:var(--accent3); font-size:0.85em;">
+          <i class="fa fa-cube"></i> RTMPose là gì? (SOTA In-Cabin Vision)
+        </div>
+        <div style="font-size:0.68em; color:#cbd5e1; line-height:1.4;">
+          <ul style="margin:0; padding-left:16px;">
+            <li><strong>SOTA Real-Time Pose Estimation:</strong> Kiến trúc ước lượng tư thế thời gian thực tiên tiến nhất từ OpenMMLab (arXiv:2303.07399v2).</li>
+            <li><strong>Vai trò sống còn với OMS L4:</strong> Định vị liên tục khung xương toàn bộ hành khách trong cabin mà không phụ thuộc vào khuôn mặt (khắc phục điểm mù khi khách quay đi hoặc trùm kín mặt).</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Card 2: SimCC vs 2D Heatmap -->
+      <div class="card" style="border-top: 3px solid var(--accent); padding: 10px 12px; margin-bottom: 0;">
+        <div class="card-title" style="color:var(--accent); font-size:0.85em;">
+          <i class="fa fa-microchip"></i> SimCC: 1D Classification vs. 2D Heatmap
+        </div>
+        <div style="font-size:0.68em; color:#cbd5e1; line-height:1.4;">
+          <ul style="margin:0; padding-left:16px;">
+            <li><strong>1D Coordinate Classification:</strong> Thay thế 2D Gaussian Heatmap bằng 2 vector phân loại 1D độc lập (trục W và H) với sub-pixel binning $k=1.5$.</li>
+            <li><strong>Hiệu năng vượt trội:</strong> Tiết kiệm <strong>&gt;80% băng thông bộ nhớ</strong>, đạt tốc độ <strong>&gt;90&ndash;120 FPS (&lt;10ms)</strong> trên SoC biên ô tô (NVIDIA Orin, Qualcomm SA8155P).</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Card 3: Halpe-26 Seated Topology vs COCO-17 -->
+      <div class="card" style="border-top: 3px solid var(--accent2); padding: 10px 12px; margin-bottom: 0;">
+        <div class="card-title" style="color:var(--accent2); font-size:0.85em;">
+          <i class="fa fa-person"></i> Halpe-26 Seated Topology vs. COCO-17
+        </div>
+        <div style="font-size:0.68em; color:#cbd5e1; line-height:1.4;">
+          <ul style="margin:0; padding-left:16px;">
+            <li><strong>Đặc chế cho tư thế ngồi xe:</strong> Khác với COCO-17 thiếu mốc xương ngồi, Halpe-26 bổ sung <strong>Neck (18), HipCenter (19)</strong> và <strong>6 điểm bàn chân (20-25)</strong>.</li>
+            <li><strong>Tọa độ toán học lõi:</strong> Tính toán trực tiếp góc gập cột sống <strong>&theta; &gt; 40&deg;</strong> và phát hiện tư thế nguy hiểm gác chân táp-lô (Feet on Dashboard).</li>
+            <li><strong>Độ tin cậy dữ liệu:</strong> Golden Benchmark <strong>OKS &ge; 0.85</strong>, độ đồng thuận <strong>Fleiss' Kappa &ge; 0.80</strong>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Card 4: Cabin Fisheye Distortions -->
+      <div class="card" style="border-top: 3px solid var(--danger); padding: 10px 12px; margin-bottom: 0;">
+        <div class="card-title" style="color:var(--danger); font-size:0.85em;">
+          <i class="fa fa-camera-rotate"></i> Kháng Méo Fisheye (CSPNeXt Backbone)
+        </div>
+        <div style="font-size:0.68em; color:#cbd5e1; line-height:1.4;">
+          <ul style="margin:0; padding-left:16px;">
+            <li><strong>Thách thức camera trần:</strong> Ống kính fisheye góc siêu rộng (150&deg;&ndash;180&deg;) trong cabin gây biến dạng hình học phối cảnh nghiêm trọng ở rìa ghế.</li>
+            <li><strong>Chống gãy vỡ khung xương:</strong> Backbone <strong>CSPNeXt</strong> với trường tiếp nhận lớn (Large Receptive Field 7x7/5x5 depthwise) kết hợp SimCC ngăn chặn hoàn toàn hiện tượng skeleton collapse.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 9: Final Test Engine Validation -->
+  <section>
+    <h2>8 · Kiểm Thử Tự Động &amp; Chứng Minh Hoạt Động (Final Test Engine)</h2>
+    <p class="tagline">Báo cáo kiểm thử tự động toàn diện: Xác thực đa kịch bản và bảo toàn gói tin phần cứng CAN Bus</p>
+
+    <!-- Top Stats Row -->
+    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+      <div class="card" style="border-top: 3px solid var(--accent2); padding: 8px 12px; text-align: center; margin-bottom:0;">
+        <div style="font-size: 1.25em; font-weight: 800; color: var(--accent2);"><i class="fa fa-circle-check"></i> 100% PASS</div>
+        <div style="font-size: 0.66em; color: #94a3b8;">89/89 Tests (0.066s) &bull; Toàn bộ Test Suite</div>
+      </div>
+      <div class="card" style="border-top: 3px solid var(--accent3); padding: 8px 12px; text-align: center; margin-bottom:0;">
+        <div style="font-size: 1.25em; font-weight: 800; color: var(--accent3);"><i class="fa fa-stopwatch"></i> Chuỗi 0s &rarr; 180s</div>
+        <div style="font-size: 0.66em; color: #94a3b8;">Deterministic Temporal Escalation (4 Cấp)</div>
+      </div>
+      <div class="card" style="border-top: 3px solid var(--accent); padding: 8px 12px; text-align: center; margin-bottom:0;">
+        <div style="font-size: 1.25em; font-weight: 800; color: var(--accent);"><i class="fa fa-shield-halved"></i> CAN Bus CRC8</div>
+        <div style="font-size: 0.66em; color: #94a3b8;">SAE J1850 E2E &bull; Alive Counter 0-15 Anti-Replay</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <!-- Card 1: Multi-Scenario & Unimodal Fallbacks -->
+      <div class="card" style="border-top: 3px solid var(--accent3); padding: 12px 14px;">
+        <div class="card-title" style="color:var(--accent3); font-size:0.88em;">
+          <i class="fa fa-vial-circle-check"></i> Kiểm Thử Đa Kịch Bản &amp; Unimodal Fallback
+        </div>
+        <div style="font-size:0.69em; color:#cbd5e1; line-height:1.4;">
+          <ul style="margin:0; padding-left:16px;">
+            <li><strong>Chuỗi thời gian 0s&ndash;180s:</strong> Xác thực chuỗi leo thang chuyển trạng thái xác định từ Nominal &rarr; Cấp 1 HMI cabin (60s) &rarr; Cấp 2 Còi loa ngoài (120s) &rarr; Cấp 3 Điều phối Fleet (150s) &rarr; Cấp 4 Gọi Cấp cứu 115 (180s).</li>
+            <li><strong>Face Loss Fallback:</strong> Khách đeo khẩu trang/trùm chăn &rarr; Hệ thống tự động fallback phân tích cột sống Halpe-26 (&theta; &gt; 40&deg;) kích hoạt cấp cứu.</li>
+            <li><strong>Skeleton Loss Fallback:</strong> Khách bị khuất thân &rarr; Chuyển trọng số sang Face Mesh (EAR &lt; 0.15 kết hợp gục đầu Head Pitch &lt; -20&deg;).</li>
+            <li><strong>Nhận diện dị thường khác:</strong> Đỗ xe an toàn khi khách gác chân lên táp-lô hoặc phát hiện say xe nôn mửa (Motion Sickness).</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Card 2: SOTIF MRM & CAN Integrity -->
+      <div class="card" style="border-top: 3px solid var(--danger); padding: 12px 14px;">
+        <div class="card-title" style="color:var(--danger); font-size:0.88em;">
+          <i class="fa fa-network-wired"></i> SOTIF MRM Safe-Stop &amp; Toàn Vẹn CAN Bus CRC8
+        </div>
+        <div style="font-size:0.69em; color:#cbd5e1; line-height:1.4;">
+          <ul style="margin:0; padding-left:16px;">
+            <li><strong>SOTIF Dừng đỗ:</strong> Camera bị che/phá hoại khi xe đứng yên &rarr; Từ chối xuất phát (Refuse Departure), giữ phanh và báo động.</li>
+            <li><strong>SOTIF Đang chạy:</strong> Camera gặp sự cố khi đang lăn bánh &rarr; Kích hoạt Minimum Risk Maneuver (MRM), tấp lề an toàn (giảm tốc $1.5\,m/s^2$) + bật hazard.</li>
+            <li><strong>Mất kết nối Tele-op:</strong> Tự động Safe-Stop &amp; bung chốt mở khóa cửa khẩn cấp (Door Unlock Fallback) cho nhân viên y tế tiếp cận.</li>
+            <li><strong>Toàn vẹn CAN Bus E2E (ID 0x0F0 &amp; 0x130):</strong> Mã hóa SAE J1850 CRC8 bắt trọn 100% lỗi biến dạng bit; Alive counter ngăn chặn drop khung hình và tấn công replay.</li>
+          </ul>
+        </div>
       </div>
     </div>
   </section>
