@@ -62,8 +62,8 @@ def get_can_physical_voltages(byte_seq: bytes) -> List[PhysicalSignalLevel]:
 
 class CANBusInterface:
     """
-    SocketCAN interface wrapper with automated loopback fallback.
-    Interacts with hardware transceivers (TJA1042/1051) over CAN_H / CAN_L lines.
+    Conceptual SocketCAN interface wrapper with automated loopback fallback.
+    Simulates CAN frame transmission and reception across vehicle domains.
     """
     def __init__(self, channel: str = "vcan0", virtual_fallback: bool = True):
         self.channel = channel

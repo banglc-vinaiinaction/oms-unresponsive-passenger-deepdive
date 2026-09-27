@@ -85,7 +85,7 @@ def format_hex_payload(payload_bytes: bytes) -> str:
 def run_oms_simulation():
     print("=" * 84)
     print("  VINAI / VINFAST ROBOTAXI L4/L5 — OMS HALPE26 & 4-TIER INTERVENTION SIMULATION")
-    print("  ISO 26262 ASIL-B Architecture | RTMPose Perception | Physical CAN bus signals")
+    print("  ISO 26262 ASIL-B Conceptual Architecture | RTMPose Perception | Simulated CAN Protocol")
     print("=" * 84)
 
     engine = OMSDecisionEngine()
